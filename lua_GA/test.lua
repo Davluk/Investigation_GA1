@@ -1,12 +1,9 @@
-local GA= require("GeneticAlgorithm")
+print(type(type(1)))
 
-local sizeOfchromosome = 9
-local sizeOfpopulation = 50
-local crossoverProbability = 50/100
-local mutationProbability = 10/100
+function perm(arg)
+    if(arg==1)then return 1 else
+        return arg * perm(arg - 1)
+    end
+end 
 
-function newChromosome(size)
-    
-end
-
-function newPopulation(sizeP,sizeC)
+print(perm(4))
