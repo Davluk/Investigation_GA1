@@ -39,14 +39,24 @@ tree.newTree=function(maxDepth)
     return tree
 end
 
-tree.string_to_print=function(tree)
-    if(type(tree.Lleaf)==option_types[2])then io.write('~'..tree.Lleaf..'\n')
-    else io.write('~') tree.string_to_print({table.unpack(tree.Lleaf)}) 
+tree.print_preorder=function(_tree)
+    io.write(_tree.expr)
+    if(type(_tree.Lleaf)==option_types[2])then io.write(_tree.Lleaf)
+    else tree.print_preorder(_tree.Lleaf) 
     end
-    io.write(tree.expr..'\n')
-    if(type(tree.Rleaf)==option_types[2])then io.write('~'..tree.Rleaf..'\n')
-    else io.write('~') tree.string_to_print({table.unpack(tree.Rleaf)}) 
+    if(type(_tree.Rleaf)==option_types[2])then io.write(_tree.Rleaf)
+    else tree.print_preorder(_tree.Rleaf) 
     end
 end
+
+--[[tree.string_to_print=function(_tree)
+    if(type(_tree.Lleaf)==option_types[2])then io.write('~'.._tree.Lleaf..'\n')
+    else io.write('~') tree.string_to_print(_tree.Lleaf) 
+    end
+    io.write(_tree.expr..'\n')
+    if(type(_tree.Rleaf)==option_types[2])then io.write('~'.._tree.Rleaf..'\n')
+    else io.write('~') tree.string_to_print(_tree.Rleaf) 
+    end
+end]]
 
 return tree
