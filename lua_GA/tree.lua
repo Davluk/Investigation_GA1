@@ -1,7 +1,30 @@
 tree = {}
+--valor de la variable independiente
+x=7.86
+--variables de configuracion del algoritmo
 option_types = {'string','number'}
-option_functions={'-','+','*','/'}
-option_terminals={1,2,3,4,5,6,7,8,9}
+option_functions={'+','-','*','/'}
+option_terminals={x,x,x,1,2,3,4,5,6,7,8,9}
+
+function ADD(a,b) return a+b end
+function SUB(a,b) return a-b end
+function MUL(a,b) return a*b end
+function DIV(a,b) return a/b end
+
+--asegurarse de que la asignacion de las funciones este en el orden en el que estan las epxresiones en "option_functions"
+execute_functions = {}
+execute_functions[option_functions[1]]=ADD
+execute_functions[option_functions[2]]=SUB
+execute_functions[option_functions[3]]=MUL
+execute_functions[option_functions[4]]=DIV
+
+tree.EvalExpression=function(_tree)
+    local operand_a = 0
+    local operand_b = 0
+    if(type(_tree.Lleaf)~=option_types[2])then operand_a = tree.EvalExpression(_tree.Lleaf) else operand_a=_tree.Lleaf end
+    if(type(_tree.Rleaf)~=option_types[2])then operand_b = tree.EvalExpression(_tree.Rleaf) else operand_b=_tree.Rleaf end
+    return execute_functions[_tree.expr](operand_a,operand_b)
+end
 
 tree.newNode=function(_expr,_left,_right,depth)
     local obj={}
@@ -49,14 +72,24 @@ tree.print_preorder=function(_tree)
     end
 end
 
---[[tree.string_to_print=function(_tree)
-    if(type(_tree.Lleaf)==option_types[2])then io.write('~'.._tree.Lleaf..'\n')
-    else io.write('~') tree.string_to_print(_tree.Lleaf) 
+tree.print_inorder=function(_tree)
+    io.write('(')
+    if(type(_tree.Lleaf)==option_types[2])then io.write(_tree.Lleaf)
+    else tree.print_inorder(_tree.Lleaf) 
     end
-    io.write(_tree.expr..'\n')
-    if(type(_tree.Rleaf)==option_types[2])then io.write('~'.._tree.Rleaf..'\n')
-    else io.write('~') tree.string_to_print(_tree.Rleaf) 
+    io.write(_tree.expr)    
+    if(type(_tree.Rleaf)==option_types[2])then io.write(_tree.Rleaf)
+    else tree.print_inorder(_tree.Rleaf) 
     end
-end]]
+    io.write(')')
+end
+
+
+tree.countNodes= function(_tree)
+    local counter = 1
+    if(type(_tree.Lleaf)~=option_types[2])then counter = counter + tree.countNodes(_tree.Lleaf) end
+    if(type(_tree.Rleaf)~=option_types[2])then counter = counter + tree.countNodes(_tree.Rleaf) end
+    return counter
+end
 
 return tree
