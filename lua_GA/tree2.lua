@@ -1,17 +1,20 @@
 local treeManager = {}
 
-function treeManager:initTreeManager(operators,terminals,variables)
+function treeManager:initTreeManager(operators,terminals,variables,operator_functions)
     self.op = operators
     self.tr = terminals
     self.vr = variables
+    self.functions = operator_functions
 end
 
-function treeManager:NewTree(maxdepth)
+function treeManager:NewTree(maxdepth,listOfValues,fx)
     local tree = {}
     local expr = {type='op',data=self.op[math.random( #self.op )]}
     tree.data = self:newNode(expr,self:GenRandomNode(),self:GenRandomNode(),maxdepth)
     return tree
 end
+
+
 
 function treeManager:GenRandomNode()
     local coin = math.random( 9 )
@@ -62,6 +65,38 @@ function treeManager:printInOrder(tree)
         self:printInOrder(tree.rigth)
     end
     io.write(' )')
+end
+
+function treeManager:EvaluateFunction(tree,currentVarValues)
+    local left_operand 
+    local rigth_operand 
+    if(tree.left.type~=nil)then
+        if(tree.left.type=='tr')then
+            left_operand = tree.left.data        
+        else
+            left_operand = currentVarValues[tree.left.data]
+        end
+    else
+        left_operand = treeManager:EvaluateFunction(tree.left,currentVarValues)
+    end
+    if(tree.rigth.type~=nil)then
+        if(tree.rigth.type=='tr')then
+            rigth_operand = tree.rigth.data        
+        else
+            rigth_operand = currentVarValues[tree.rigth.data]
+        end
+    else
+        rigth_operand = treeManager:EvaluateFunction(tree.rigth,currentVarValues)
+    end
+    return self.functions[tree.expr.data](left_operand,rigth_operand)
+end
+
+function treeManager:getCuadraticError(tree,listOfValues,fx)
+    local error=0
+    for index = 1,#listOfValues,1 do
+        error = error + math.pow(listOfValues[index][fx]- treeManager:EvaluateFunction(tree,listOfValues[index]),2)
+    end
+    return error/#listOfValues
 end
 
 return treeManager
