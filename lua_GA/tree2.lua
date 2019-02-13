@@ -91,6 +91,30 @@ function treeManager:EvaluateFunction(tree,currentVarValues)
     return self.functions[tree.expr.data](left_operand,rigth_operand)
 end
 
+function treeManager:countOperators(tree)
+    local counter = 1
+    if(tree.left.type ==nil)then counter = counter + treeManager:countOperators(tree.left) end
+    if(tree.rigth.type==nil)then counter = counter + treeManager:countOperators(tree.rigth)end
+    return counter
+end
+
+function treeManager:returnIndexedSubTree(tree,number)
+    local counter = number
+    local tempNumber = 0
+    local indexedTree = nil
+    if(number == 0)then return 1,tree end
+    if(tree.left.type ==nil)then 
+        tempNumber,indexedTree = treeManager:returnIndexedSubTree(tree.left,counter-1)
+        counter = counter - tempNumber
+    end
+    if(tree.rigth.type==nil and counter > 0)then 
+        tempNumber,indexedTree = treeManager:returnIndexedSubTree(tree.rigth,counter-1)
+        counter = counter - tempNumber
+    end
+    return counter,indexedTree
+end
+
+
 function treeManager:getCuadraticError(tree,listOfValues,fx)
     local error=0
     for index = 1,#listOfValues,1 do
