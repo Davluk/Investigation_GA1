@@ -20,12 +20,19 @@ operator_functions[operators[4]]=div
 
 math.randomseed(os.time())
 tr:initTreeManager(operators,terminals,variables,operator_functions)
-local mytree = tr:NewTree(20,variable_values,'y')
+local mytree = tr:NewTree(5,variable_values,'y')
 tr:printInOrder(mytree.data)
 mytree.fittness = tr:getCuadraticError(mytree.data,variable_values,'y')
 io.write('\n')
 print(tr:EvaluateFunction(mytree.data,variable_values[1]))
 print(mytree.fittness)
+
+op = tr:countOperators(mytree)
+op = math.ceil( op/2 )
+
+mytree2 = tr:returnIndexedSubTree(mytree,op)
+tr:printInOrder(mytree2)
+
 --print(inspect(mytree.data))
 --[[tr.print_inorder(mytree)
 print('\n'..tr.countNodes(mytree))
