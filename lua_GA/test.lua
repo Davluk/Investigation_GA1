@@ -20,7 +20,7 @@ operator_functions[operators[4]]=div
 
 math.randomseed(os.time())
 tr:initTreeManager(operators,terminals,variables,operator_functions)
-local mytree = tr:NewTree(10,variable_values,'y')
+local mytree = tr:NewTree(20,variable_values,'y')
 tr:printInOrder(mytree.data)
 mytree.fittness = tr:getCuadraticError(mytree.data,variable_values,'y')
 io.write('\n')
