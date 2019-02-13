@@ -14,14 +14,13 @@ function treeManager:NewTree(maxdepth,listOfValues,fx)
     return tree
 end
 
-
-
 function treeManager:GenRandomNode()
-    local coin = math.random( 9 )
-    if coin>6 then
+    local coin = math.random( 10 )
+    if coin>5 then
         return {type='op',data=self.op[math.random( #self.op )]}
     else 
-        if coin>3 then
+        coin = math.random( 10 )
+        if coin>5 then
             return {type='tr',data=self.tr[math.random( #self.tr )]}
         else
             return {type='vr',data=self.vr[math.random( #self.vr )]}
@@ -34,11 +33,11 @@ function treeManager:newNode(expr,left,rigth,maxdepth)
     node.expr = expr
     if(maxdepth==2)then 
         local coin = math.random( 4 )
-        if(coin >=2)then node.left  = {type = 'tr',data = self.tr[math.random( #self.tr )]}
+        if(coin >2)then node.left  = {type = 'tr',data = self.tr[math.random( #self.tr )]}
         else             node.left  = {type = 'vr',data = self.vr[math.random( #self.vr )]}
         end
         coin = math.random( 4 )
-        if(coin >=2)then node.rigth = {type = 'tr',data = self.tr[math.random( #self.tr )]}
+        if(coin >2)then node.rigth = {type = 'tr',data = self.tr[math.random( #self.tr )]}
         else             node.rigth = {type = 'vr',data = self.vr[math.random( #self.vr )]}   
         end
     else
