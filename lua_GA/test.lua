@@ -27,11 +27,13 @@ io.write('\n')
 print(tr:EvaluateFunction(mytree.data,variable_values[1]))
 print(mytree.fittness)
 
-op = tr:countOperators(mytree)
+op = tr:countOperators(mytree.data)
+print(op)
 op = math.ceil( op/2 )
+print(op)
 
-mytree2 = tr:returnIndexedSubTree(mytree,op)
-tr:printInOrder(mytree2)
+mytree2 = tr:returnIndexedSubTree(mytree.data,op)
+tr:printInOrder(mytree2.data)
 
 --print(inspect(mytree.data))
 --[[tr.print_inorder(mytree)
