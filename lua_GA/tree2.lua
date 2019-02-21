@@ -66,6 +66,23 @@ function treeManager:printInOrder(tree)
     io.write(' )')
 end
 
+function treeManager:printPosOrder(tree)
+    io.write("("..tree.expr.data.." ")
+    if(tree.left.type ~= nil)then 
+        io.write(tree.left.data.." ") 
+    else 
+        self:printPosOrder(tree.left)
+    end
+
+    if(tree.rigth.type ~= nil)
+    then 
+        io.write(tree.rigth.data.." ") 
+    else 
+        self:printPosOrder(tree.rigth)
+    end
+    io.write(")")
+end
+
 function treeManager:EvaluateFunction(tree,currentVarValues)
     local left_operand 
     local rigth_operand 
@@ -101,12 +118,17 @@ function treeManager:returnIndexedSubTree(tree,number)
     local counter = number
     local tempNumber = 0
     local indexedTree = nil
-    if(number == 0)then return 1,tree end
-    if(tree.left.type ==nil)then 
+    if(tree.expr~=nil)then print("expresion : "..tree.expr.data.."| number = "..number) else print(tree.data.." ") end
+    if(number == 0)then 
+        print("counter = 1") return 1,tree 
+    else 
+        if(tree.left~=nil and tree.left.type~=nil and tree.rigth~=nil and tree.rigth.type~=nil)then return 1,nil end
+    end
+    if(tree.left~=nil and tree.left.type==nil)then 
         tempNumber,indexedTree = treeManager:returnIndexedSubTree(tree.left,counter-1)
         counter = counter - tempNumber
-    end
-    if(tree.rigth.type==nil and counter > 0)then 
+    end 
+    if(tree.rigth~=nil and tree.rigth.type==nil and counter > 0)then 
         tempNumber,indexedTree = treeManager:returnIndexedSubTree(tree.rigth,counter-1)
         counter = counter - tempNumber
     end
