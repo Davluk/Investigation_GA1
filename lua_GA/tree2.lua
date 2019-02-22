@@ -114,25 +114,25 @@ function treeManager:countOperators(tree)
     return counter
 end
 
-function treeManager:returnIndexedSubTree(tree,number)
-    local counter = number
-    local tempNumber = 0
-    local indexedTree = nil
-    if(tree.expr~=nil)then print("expresion : "..tree.expr.data.."| number = "..number) else print(tree.data.." ") end
-    if(number == 0)then 
-        print("counter = 1") return 1,tree 
-    else 
-        if(tree.left~=nil and tree.left.type~=nil and tree.rigth~=nil and tree.rigth.type~=nil)then return 1,nil end
+function treeManager:getIndexedSubTree(tree,number)
+    self.tempSubTree = tree
+    local deep = number
+    local subtree = nil
+    print("expr: "..tree.expr.data.."| number: "..number)
+    if(number>=1)then
+        if(tree.left~=nil and tree.left.type~=nil and tree.rigth~=nil and tree.rigth.type~=nil)then
+            return number
+        end
+        if(tree.left~=nil and tree.left.type==nil)then
+            deep = treeManager:getIndexedSubTree(tree.left,number-1)
+        end
+        if(tree.rigth~=nil and tree.rigth.type==nil and deep>0)then
+            deep = treeManager:getIndexedSubTree(tree.rigth,deep-1)
+        end
+    else
+        self.tempSubTree = tree
     end
-    if(tree.left~=nil and tree.left.type==nil)then 
-        tempNumber,indexedTree = treeManager:returnIndexedSubTree(tree.left,counter-1)
-        counter = counter - tempNumber
-    end 
-    if(tree.rigth~=nil and tree.rigth.type==nil and counter > 0)then 
-        tempNumber,indexedTree = treeManager:returnIndexedSubTree(tree.rigth,counter-1)
-        counter = counter - tempNumber
-    end
-    return counter,indexedTree
+    return deep
 end
 
 
