@@ -20,25 +20,31 @@ operator_functions[operators[4]]=div
 
 math.randomseed(os.time())
 tr:initTreeManager(operators,terminals,variables,operator_functions)
-local mytree = tr:NewTree(10,variable_values,'y')
-tr:printPosOrder(mytree.data)
-mytree.fittness = tr:getCuadraticError(mytree.data,variable_values,'y')
+local mytree1 = tr:NewTree(10,variable_values,'y')
+local mytree2 = tr:NewTree(10,variable_values,'y')
+tr:printPosOrder(mytree1.data)
+print()
+tr:printPosOrder(mytree2.data)
+mytree1.fittness = tr:getCuadraticError(mytree1.data,variable_values,'y')
+mytree2.fittness = tr:getCuadraticError(mytree2.data,variable_values,'y')
 io.write('\n')
-print(tr:EvaluateFunction(mytree.data,variable_values[1]))
-print(mytree.fittness)
+print("evaluation 1: "..tr:EvaluateFunction(mytree1.data,variable_values[1]))
+print("evaluaiton 2: "..tr:EvaluateFunction(mytree2.data,variable_values[1]))
+print("fit1: "..mytree1.fittness)
+print("fit2: "..mytree2.fittness)
 
-op = tr:countOperators(mytree.data)
-print(op)
-op = math.ceil( op/2 )
-print(op)
+op1 = tr:countOperators(mytree1.data)
+op2 = tr:countOperators(mytree2.data)
+print("operators 1: "..op1)
+print("operators 2: "..op2)
+op1 = math.ceil( op1/2 )
+op2 = math.ceil( op2/2 )
+print("op1 half: "..op1)
+print("op2 half: "..op2)
 
-tr:getIndexedSubTree(mytree.data,op)--save the indexed tree on a temporal variable called "tempSubTree"
-tr:printPosOrder(tr.tempSubTree)
-print()
-tr.tempSubTree = tr:NewTree(5,variable_values,'y')
-tr:printPosOrder(mytree.data)
-print()
-tr:printPosOrder(tr.tempSubTree.data)
+tr:setIndexedSubTree(mytree1.data,tr:getIndexedSubTree(mytree2.data,op2),op1)--save the indexed tree on a temporal variable called "tempSubTree"
+
+
 
 --print(inspect(mytree.data))
 --[[tr.print_inorder(mytree)
