@@ -14,6 +14,11 @@ function treeManager:NewTree(maxdepth,listOfValues,fx)
     return tree
 end
 
+function treeManager:NewSubTree(maxdepth,listOfValues,fx)
+    local expr = {type='op',data=self.op[math.random( #self.op )]}
+    return self:newNode(expr,self:GenRandomNode(),self:GenRandomNode(),maxdepth)
+end
+
 function treeManager:GenRandomNode()
     local coin = math.random( 10 )
     if coin>5 then
@@ -117,7 +122,6 @@ end
 function treeManager:getIndexedSubTree(tree,number)
     self.tempSubTree = tree
     local deep = number
-    local subtree = nil
     print("expr: "..tree.expr.data.."| number: "..number)
     if(number>=1)then
         if(tree.left~=nil and tree.left.type~=nil and tree.rigth~=nil and tree.rigth.type~=nil)then
@@ -131,6 +135,24 @@ function treeManager:getIndexedSubTree(tree,number)
         end
     else
         self.tempSubTree = tree
+    end
+    return deep
+end
+function treeManager:setIndexedSubTree(tree,treeSubstitute,number)
+    local deep = number
+    print("expr: "..tree.expr.data.."| number: "..number)
+    if(number>=1)then
+        if(tree.left~=nil and tree.left.type~=nil and tree.rigth~=nil and tree.rigth.type~=nil)then
+            return number
+        end
+        if(tree.left~=nil and tree.left.type==nil)then
+            deep = treeManager:setIndexedSubTree(tree.left,treeSubstitute,number-1)
+        end
+        if(tree.rigth~=nil and tree.rigth.type==nil and deep>0)then
+            deep = treeManager:setIndexedSubTree(tree.rigth,treeSubstitute,deep-1)
+        end
+    else
+        tree=treeSubstitute
     end
     return deep
 end
