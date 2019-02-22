@@ -18,7 +18,7 @@ operator_functions[operators[2]]=sub
 operator_functions[operators[3]]=mul
 operator_functions[operators[4]]=div
 
---math.randomseed(os.time())
+math.randomseed(os.time())
 tr:initTreeManager(operators,terminals,variables,operator_functions)
 local mytree = tr:NewTree(10,variable_values,'y')
 tr:printPosOrder(mytree.data)
@@ -32,8 +32,13 @@ print(op)
 op = math.ceil( op/2 )
 print(op)
 
-mytree2 = tr:returnIndexedSubTree(mytree.data,op)
---tr:printInOrder(mytree2.data)
+tr:getIndexedSubTree(mytree.data,op)--save the indexed tree on a temporal variable called "tempSubTree"
+tr:printPosOrder(tr.tempSubTree)
+print()
+tr.tempSubTree = tr:NewTree(5,variable_values,'y')
+tr:printPosOrder(mytree.data)
+print()
+tr:printPosOrder(tr.tempSubTree.data)
 
 --print(inspect(mytree.data))
 --[[tr.print_inorder(mytree)
