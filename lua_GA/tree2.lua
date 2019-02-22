@@ -122,7 +122,7 @@ end
 function treeManager:getIndexedSubTree(tree,number)
     self.tempSubTree = tree
     local deep = number
-    print("expr: "..tree.expr.data.."| number: "..number)
+   -- print("get - expr: "..tree.expr.data.."| number: "..number)
     if(number>=1)then
         if(tree.left~=nil and tree.left.type~=nil and tree.rigth~=nil and tree.rigth.type~=nil)then
             return number
@@ -140,7 +140,7 @@ function treeManager:getIndexedSubTree(tree,number)
 end
 function treeManager:setIndexedSubTree(tree,treeSubstitute,number)
     local deep = number
-    print("expr: "..tree.expr.data.."| number: "..number)
+    --print("set - expr: "..tree.expr.data.."| number: "..number)
     if(number>=1)then
         if(tree.left~=nil and tree.left.type~=nil and tree.rigth~=nil and tree.rigth.type~=nil)then
             return number
