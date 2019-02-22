@@ -20,8 +20,8 @@ operator_functions[operators[4]]=div
 
 math.randomseed(os.time())
 tr:initTreeManager(operators,terminals,variables,operator_functions)
-local mytree1 = tr:NewTree(10,variable_values,'y')
-local mytree2 = tr:NewTree(10,variable_values,'y')
+mytree1 = tr:NewTree(10,variable_values,'y')
+mytree2 = tr:NewTree(10,variable_values,'y')
 tr:printPosOrder(mytree1.data)
 print()
 tr:printPosOrder(mytree2.data)
@@ -42,7 +42,19 @@ op2 = math.ceil( op2/2 )
 print("op1 half: "..op1)
 print("op2 half: "..op2)
 
-tr:setIndexedSubTree(mytree1.data,tr:getIndexedSubTree(mytree2.data,op2),op1)--save the indexed tree on a temporal variable called "tempSubTree"
+print("\nsubtree1_selected: ")
+tr:getIndexedSubTree(mytree1.data,op1)
+tr:printPosOrder(tr.tempSubTree)
+
+print("\nsubtree2_selected: ")
+tr:getIndexedSubTree(mytree2.data,op2)
+tr:printPosOrder(tr.tempSubTree)
+
+print("\nnew_individual: ")
+tr:setIndexedSubTree(mytree1.data,tr.tempSubTree,op1)--save the indexed tree on a temporal variable called "tempSubTree"
+tr:printPosOrder(mytree1.data)
+print()
+
 
 
 
