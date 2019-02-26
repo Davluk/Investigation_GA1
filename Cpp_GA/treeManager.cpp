@@ -19,7 +19,7 @@ class infoType
 		data = node_Data; 
 		type = node_type; 
 	}
-	~infoType();
+	~infoType(){}
 };
 
 class node
@@ -30,6 +30,7 @@ class node
 	node* rigth;
 	
 	node(){}
+	~node(){}
 	node(node* copy)
 	{
 		data = copy->data;
@@ -39,7 +40,7 @@ class node
 	node(infoType node_data){
 		data = node_data; 
 	}
-	node(infoType node_data,infoType left_data,infoType rigth_data,int depth,infoType (treeManager::*getData)(),infoType (treeManager::*getLeaf)(),bool (treeManager::*isNode)(infoType))
+	node(infoType node_data,infoType left_data,infoType rigth_data,int depth,infoType (*getData)(),infoType (*getLeaf)(),bool (*isNode)(infoType))
 	{
 		data = node_data;
 		if(depth==2)
@@ -70,11 +71,12 @@ class tree{
 	node data;
 	float fitness;
 	tree(){}
+	~tree(){}
 	tree(tree* copy){
 		data = copy->data;
 		fitness = copy->fitness;
 	}
-	tree(int maxDepth,infoType (treeManager::*newOperand)(),infoType (treeManager::*newData)(),infoType (treeManager::*newLeaf)(),bool (treeManager::*isNode)(infoType)){
+	tree(int maxDepth,infoType (*newOperand)(),infoType (*newData)(),infoType (*newLeaf)(),bool (*isNode)(infoType)){
 		data = new node(newOperand(),newData(),newData(),maxDepth,newData,newLeaf,isNode);
 	}	
 };
@@ -83,18 +85,16 @@ class treeManager
 {
 	public:
 	enum types {opr,term,var};
-	int* operators;
-	int* terminals;
-	int* variables;
-	char* repOperators;
-	char* repVariables;
+	static int* operators;
+	static int* terminals;
+	static int* variables;
+	static char* repOperators;
+	static char* repVariables;
 
-	float	(**functions)(float,float);
+	static float	(**functions)(float,float);
 
-	//infoType getData();
-	//infoType getLeaf();
-	//bool isNode(infoType);
-
+	treeManager(){}
+	~treeManager(){}
 	treeManager(int* tree_operators,int* tree_terminals,int* tree_variables,char* rep_operators,char* rep_variables,float (**tree_functions)(float,float)){
 		operators = tree_operators;
 		terminals = tree_terminals;
@@ -138,9 +138,9 @@ class treeManager
 
 
 	//la funcion debe de trabajar correctamente independientemente de el tipo de dato
-	int countElements(int* elements){ return static_cast<int>(sizeof(elements)/sizeof(elements[0])); }
-	bool isNode(infoType temp_data) { return (temp_data.data==opr); }
-	infoType getData(){
+	static int countElements(int* elements){ return static_cast<int>(sizeof(elements)/sizeof(elements[0])); }
+	static bool isNode(infoType temp_data) { return (temp_data.data==opr); }
+	static infoType getData(){
 		int coin = rand()%4;
 		infoType temp_Type;
 		if(coin>2){
@@ -159,7 +159,7 @@ class treeManager
 		return temp_Type;
 	}
 
-	infoType getLeaf(){
+	static infoType getLeaf(){
 		int coin = rand()%4;
 		infoType temp_Type;
 		if(coin>2){
@@ -172,7 +172,7 @@ class treeManager
 		return temp_Type;
 	}
 
-	infoType getOperand()
+	static infoType getOperand()
 	{
 		infoType temp_info;
 		temp_info.data = operators[rand()%countElements(operators)];
@@ -180,7 +180,7 @@ class treeManager
 		return temp_info;
 	}
 	
-	char* getDataChar(infoType temp_data){
+	static char* getDataChar(infoType temp_data){
 		char* temp_string = new char(' ');
 		//it can be modificated for print some other strings for each terminal
 		if(temp_data.type == term){ 
@@ -193,10 +193,7 @@ class treeManager
 			}
 		}
 		return temp_string;
-	}
-
-	~treeManager();
-	
+	}	
 };
 
 #endif
