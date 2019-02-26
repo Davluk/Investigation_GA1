@@ -9,6 +9,7 @@ class node
 	infoType data;
 	node* left;
 	node* rigth;
+	
 	node(){}
 	node(node* copy)
 	{
