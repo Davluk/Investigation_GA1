@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<vector>
 #include"tree.cpp"
 
 #ifndef TREEMANAGER_CPP
@@ -8,7 +9,7 @@
 class treeManager
 {
 	public:
-	enum types {opr,term,var,func};
+	enum types {opr,term,var};
 	int* operators;
 	int* terminals;
 	int* variables;
@@ -30,9 +31,9 @@ class treeManager
 		functions = tree_functions;
 	}
 
-	tree* newTree(int maxDepth,float** current_values)
+	tree* newTree(int maxDepth,float** current_values,infoType (*newOperand)(),infoType (*newData)(),infoType (*newLeaf)(),bool (*checkNode)(infoType))
 	{
-		tree temp_tree(maxDepth,getOperand,getData,getLeaf,isNode);
+		tree temp_tree(maxDepth,newOperand,newData,newLeaf,checkNode);
 		//evaluateExpression(&temp_tree.data);
 	}
 
