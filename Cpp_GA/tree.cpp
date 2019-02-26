@@ -1,25 +1,19 @@
-#include<stdio.h>
-#include<iostream>
-#include<string>
 #include"node.cpp"
-using namespace std;
-
-
 #ifndef TREE_CPP
 #define TREE_CPP
 
 class tree{
 	public:
-	node* data;
-	int fitness;
+	node data;
+	float fitness;
 	tree(){}
 	tree(tree* copy){
 		data = copy->data;
 		fitness = copy->fitness;
 	}
-	tree(){
-
-	}
+	tree(int maxDepth,infoType (*newOperand)(),infoType (*newData)(),infoType (*newLeaf)(),bool (*isNode)(infoType)){
+		data = new node(newOperand(),newData(),newData(),maxDepth,newData,newLeaf,isNode);
+	}	
 };
 
 #endif
