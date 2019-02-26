@@ -1,16 +1,20 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
-
+#include"treeManager.cpp"
 
 
 enum varCode{ x, y };
 enum opCode{ add,sub,mul,divp };
 int variables[]={x,y};
 int operadores[]={add,sub,mul,divp};
+int terminales[]={1,2,3,4,5};
+
+float** list_values;
+list_values[0] = 0.3f;
 
 char repOperators[] = {'+','-','*','/'};
-char rePVariables[] = {'x','y'};
+char repVariables[] = {'x','y'};
 
 float add_func(float a,float b){ return a+b; }
 float sub_func(float a,float b){ return a-b; }
@@ -22,6 +26,8 @@ void executeFunctions(float a,float b,float (*_multi)(float,float),float (*_divi
     printf("the result of divide a,b is %f\n",_divi(a,b));
 }
 
+
+
 int main(int argc, char const *argv[])
 {
     srand ((int)time(NULL));
@@ -30,6 +36,9 @@ int main(int argc, char const *argv[])
     operations[sub]=sub_func;
     operations[mul]=mul_func;
     operations[divp]=div_func;
+
+    treeManager trm(operadores,terminales,variables,repOperators,repVariables,operations);
+    tree mytree = trm.newTree(5,list_values,);
 
     executeFunctions(10,4,mul_func,div_func);
 
