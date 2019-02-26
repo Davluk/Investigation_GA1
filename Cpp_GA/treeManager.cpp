@@ -1,10 +1,83 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<vector>
-#include"tree.cpp"
+#include<iostream>
 
 #ifndef TREEMANAGER_CPP
 #define TREEMANAGER_CPP
+
+class infoType
+{
+	public:
+	int data;
+	int type;
+	infoType(){}
+	infoType(infoType* copy){ 
+		data = copy->data;
+		type = copy->type; 
+	}	
+	infoType(int node_Data,int node_type){ 
+		data = node_Data; 
+		type = node_type; 
+	}
+	~infoType();
+};
+
+class node
+{
+	public:
+	infoType data;
+	node* left;
+	node* rigth;
+	
+	node(){}
+	node(node* copy)
+	{
+		data = copy->data;
+		left = copy->left;
+		rigth = copy->rigth;
+	}
+	node(infoType node_data){
+		data = node_data; 
+	}
+	node(infoType node_data,infoType left_data,infoType rigth_data,int depth,infoType (treeManager::*getData)(),infoType (treeManager::*getLeaf)(),bool (treeManager::*isNode)(infoType))
+	{
+		data = node_data;
+		if(depth==2)
+		{
+			left = new node(getLeaf());
+			rigth= new node(getLeaf());
+		}else{
+			if(isNode(left_data )){ left  = new node(left_data ,getData(),getData(),depth-1,getData,getLeaf,isNode); }
+			else{ left  = new node(left_data ); }
+			if(isNode(rigth_data)){ rigth = new node(rigth_data,getData(),getData(),depth-1,getData,getLeaf,isNode); }
+			else{ rigth = new node(rigth_data); }
+		}
+	}
+
+	void printPreOrder(char* (*getDataChar)(infoType),bool (*isNode)(infoType))
+	{
+		std::cout<<"( "<<getDataChar(data)<<" ";
+		if(isNode(&left->data)){ left->printPreOrder(getDataChar,isNode); }
+		else{ std::cout<<getDataChar(left->data)<<" "; }
+		if(isNode(&rigth->data)){ rigth->printPreOrder(getDataChar,isNode); }
+		else{ std::cout<<getDataChar(rigth->data)<<" "; }
+		std::cout<<" )";
+	}
+};
+
+class tree{
+	public:
+	node data;
+	float fitness;
+	tree(){}
+	tree(tree* copy){
+		data = copy->data;
+		fitness = copy->fitness;
+	}
+	tree(int maxDepth,infoType (treeManager::*newOperand)(),infoType (treeManager::*newData)(),infoType (treeManager::*newLeaf)(),bool (treeManager::*isNode)(infoType)){
+		data = new node(newOperand(),newData(),newData(),maxDepth,newData,newLeaf,isNode);
+	}	
+};
 
 class treeManager
 {
@@ -18,9 +91,9 @@ class treeManager
 
 	float	(**functions)(float,float);
 
-	infoType getData();
-	infoType getLeaf();
-	bool isNode(infoType);
+	//infoType getData();
+	//infoType getLeaf();
+	//bool isNode(infoType);
 
 	treeManager(int* tree_operators,int* tree_terminals,int* tree_variables,char* rep_operators,char* rep_variables,float (**tree_functions)(float,float)){
 		operators = tree_operators;
@@ -31,9 +104,9 @@ class treeManager
 		functions = tree_functions;
 	}
 
-	tree* newTree(int maxDepth,float** current_values,infoType (*newOperand)(),infoType (*newData)(),infoType (*newLeaf)(),bool (*checkNode)(infoType))
+	tree* newTree(int maxDepth,float** current_values)
 	{
-		tree temp_tree(maxDepth,newOperand,newData,newLeaf,checkNode);
+		tree temp_tree(maxDepth,getOperand,getData,getLeaf,isNode);
 		//evaluateExpression(&temp_tree.data);
 	}
 
@@ -98,17 +171,17 @@ class treeManager
 		}
 		return temp_Type;
 	}
-	
+
 	infoType getOperand()
 	{
 		infoType temp_info;
 		temp_info.data = operators[rand()%countElements(operators)];
-		temp_info.type = opr;
+		temp_info.type = term;
 		return temp_info;
 	}
-
+	
 	char* getDataChar(infoType temp_data){
-		char* temp_string = " ";
+		char* temp_string = new char(' ');
 		//it can be modificated for print some other strings for each terminal
 		if(temp_data.type == term){ 
 			sprintf(temp_string,"%d",temp_data.data); 
