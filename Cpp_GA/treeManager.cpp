@@ -33,35 +33,35 @@ class treeManager
 	tree* newTree(int maxDepth,float** current_values)
 	{
 		tree temp_tree(maxDepth,getOperand,getData,getLeaf,isNode);
-		evaluateExpression(&temp_tree);
+		//evaluateExpression(&temp_tree.data);
 	}
 
-	float evaluateExpression(node *tempTree,float* current_values)
+	/*float evaluateExpression(node *tempTree,float* current_values)
 	{
 		float left_operand=0.0f;
 		float rigth_operand=0.0f;
 		if(tempTree->left!=NULL && tempTree->left.data.type==opr){
-			left_operand = evaluateExpression(tempTree->left);
+			left_operand = evaluateExpression(tempTree->left,current_values);
 		}else{
 			if(tempTree->left!=NULL && tempTree->left.type==var){
-				left_operand = current_values[tempTree->left.data];
+				left_operand = current_values[tempTree->left.data.data];
 			}else{
 				left_operand = tempTree->left.data;			
 			}
 		}
 		if(tempTree->rigth!=NULL && tempTree->rigth.data.type==opr){
-			left_operand = evaluateExpression(tempTree->rigth);
+			left_operand = evaluateExpression(tempTree->rigth,current_values);
 		}else{
 			if(tempTree->rigth!=NULL && tempTree->rigth.type==var){
-				rigth_operand = current_values[tempTree->rigth.data];
+				rigth_operand = current_values[tempTree->rigth.data.data];
 			}else{
 				rigth_operand = tempTree->left.data;			
 			}
 		}
 		return functions[tempTree->data](left_operand,rigth_operand);
 	}
+	*/
 
-	float 
 
 	//la funcion debe de trabajar correctamente independientemente de el tipo de dato
 	int countElements(int* elements){ return static_cast<int>(sizeof(elements)/sizeof(elements[0])); }
