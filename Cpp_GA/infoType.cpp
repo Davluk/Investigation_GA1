@@ -8,7 +8,8 @@ class infoType
 	int type;
 	infoType(){}
 	infoType(infoType* copy){ 
-		data = copy->data; 
+		data = copy->data;
+		type = copy->type; 
 	}	
 	infoType(int node_Data,int node_type){ 
 		data = node_Data; 
