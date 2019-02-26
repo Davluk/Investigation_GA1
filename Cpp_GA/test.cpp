@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
+#include<vector>
 #include"treeManager.cpp"
 
 
@@ -9,9 +10,6 @@ enum opCode{ add,sub,mul,divp };
 int variables[]={x,y};
 int operadores[]={add,sub,mul,divp};
 int terminales[]={1,2,3,4,5};
-
-float** list_values;
-list_values[0] = 0.3f;
 
 char repOperators[] = {'+','-','*','/'};
 char repVariables[] = {'x','y'};
@@ -37,10 +35,18 @@ int main(int argc, char const *argv[])
     operations[mul]=mul_func;
     operations[divp]=div_func;
 
-    treeManager trm(operadores,terminales,variables,repOperators,repVariables,operations);
-    tree mytree = trm.newTree(5,list_values,);
+    float** list_values;
+    list_values[0]=new float[2];
+    list_values[0][x]=0.5f;
+    list_values[0][y]=0.8f;
+    list_values[1]=new float[2];
+    list_values[0][x]=0.9f;
+    list_values[0][y]=4.9f;
 
-    executeFunctions(10,4,mul_func,div_func);
+    treeManager trm(operadores,terminales,variables,repOperators,repVariables,operations);
+    tree* mytree = trm.newTree(5,list_values);
+
+    //executeFunctions(10,4,mul_func,div_func);
 
 
 
