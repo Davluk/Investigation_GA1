@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include"infoType.cpp"
+#include"tree.cpp"
 
 #ifndef TREEMANAGER_CPP
 #define TREEMANAGER_CPP
@@ -14,7 +14,13 @@ class treeManager
 	int* variables;
 	char* repOperators;
 	char* repVariables;
+
 	float	(**functions)(float,float);
+
+	infoType getData();
+	infoType getLeaf();
+	bool isNode(infoType);
+
 	treeManager(int* tree_operators,int* tree_terminals,int* tree_variables,char* rep_operators,char* rep_variables,float (**tree_functions)(float,float)){
 		operators = tree_operators;
 		terminals = tree_terminals;
@@ -23,7 +29,42 @@ class treeManager
 		repVariables = rep_variables;
 		functions = tree_functions;
 	}
-	inline int countElements(int* elements){ return (int)sizeof(elements)/sizeof(elements[0]); }
+
+	tree* newTree(int maxDepth,float** current_values)
+	{
+		tree temp_tree(maxDepth,getOperand,getData,getLeaf,isNode);
+		evaluateExpression(&temp_tree);
+	}
+
+	float evaluateExpression(node *tempTree,float* current_values)
+	{
+		float left_operand=0.0f;
+		float rigth_operand=0.0f;
+		if(tempTree->left!=NULL && tempTree->left.data.type==opr){
+			left_operand = evaluateExpression(tempTree->left);
+		}else{
+			if(tempTree->left!=NULL && tempTree->left.type==var){
+				left_operand = current_values[tempTree->left.data];
+			}else{
+				left_operand = tempTree->left.data;			
+			}
+		}
+		if(tempTree->rigth!=NULL && tempTree->rigth.data.type==opr){
+			left_operand = evaluateExpression(tempTree->rigth);
+		}else{
+			if(tempTree->rigth!=NULL && tempTree->rigth.type==var){
+				rigth_operand = current_values[tempTree->rigth.data];
+			}else{
+				rigth_operand = tempTree->left.data;			
+			}
+		}
+		return functions[tempTree->data](left_operand,rigth_operand);
+	}
+
+	float 
+
+	//la funcion debe de trabajar correctamente independientemente de el tipo de dato
+	int countElements(int* elements){ return static_cast<int>(sizeof(elements)/sizeof(elements[0])); }
 	bool isNode(infoType temp_data) { return (temp_data.data==opr); }
 	infoType getData(){
 		int coin = rand()%4;
@@ -55,6 +96,14 @@ class treeManager
 			temp_Type.type = var;
 		}
 		return temp_Type;
+	}
+	
+	infoType getOperand()
+	{
+		infoType temp_info;
+		temp_info.data = operators[rand()%countElements(operators)];
+		temp_info.type = opr;
+		return temp_info;
 	}
 
 	char* getDataChar(infoType temp_data){
