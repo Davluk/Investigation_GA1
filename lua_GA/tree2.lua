@@ -10,11 +10,13 @@ end
 
 
 --verified
-function treeManager:NewTree(maxdepth,fx)
-    local tree = {}
+function treeManager:NewTree(maxdepth,listOfValues,fx)
+     if (self.trees==nil) then self.trees = {} end
     local expr = {type='op',data=self.op[math.random( #self.op )]}
-    tree.data = self:newNode(expr,self:GenRandomNode(),self:GenRandomNode(),maxdepth)
-    return tree
+    self.trees[#self.trees+1]={}
+    self.trees[#self.trees].data = self:newNode(expr,self:GenRandomNode(),self:GenRandomNode(),maxdepth)
+    self.trees[#self.trees].fitness = self:getCuadraticErrorIndex(#self.trees,listOfValues,fx)
+    return #self.trees
 end
 
 --???
@@ -63,6 +65,7 @@ end
 
 
 --verified
+function treeManager:printInOrderIndex(index) self:printInOrder(self.trees[index].data)end
 function treeManager:printInOrder(tree)
     io.write('( ')
     if(tree.left.type ~= nil)then 
@@ -82,6 +85,7 @@ end
 
 
 --verified
+function treeManager:printPosOrderIndex(index) self:printPosOrder(self.trees[index].data) print() print("fitness["..index.."]: "..self.trees[index].fitness) end
 function treeManager:printPosOrder(tree)
     io.write("("..tree.expr.data.." ")
     if(tree.left.type ~= nil)then 
@@ -99,6 +103,14 @@ function treeManager:printPosOrder(tree)
     io.write(")")
 end
 
+function treeManager:getCuadraticErrorIndex(index,listOfValues,fx) return self:getCuadraticError(self.trees[index],listOfValues,fx)end
+function treeManager:getCuadraticError(tree,listOfValues,fx)
+    local error=0
+    for index = 1,#listOfValues,1 do
+        error = error + math.pow(listOfValues[index][fx]- treeManager:EvaluateFunction(self.trees[index].data,listOfValues[index]),2)
+    end
+    return error/#listOfValues
+end
 
 --verified
 function treeManager:EvaluateFunction(tree,currentVarValues)
@@ -127,6 +139,7 @@ end
 
 
 --verified
+function treeManager:countOperatorsIndex(index)return self:countOperators(self.trees[index].data)end
 function treeManager:countOperators(tree)
     local counter = 1
     if(tree.left.type ==nil)then counter = counter + treeManager:countOperators(tree.left) end
@@ -136,35 +149,23 @@ end
 
 
 --verified
+function treeManager:getIndexedSubTreeIndex(index,number,selection)self:getIndexedSubTree(self.trees[index].data,number,selection)end
 function treeManager:getIndexedSubTree(tree,number,selection)
-    if(selection==1)then self.tempSubTree1 = tree
-    else
-        if(selection==2)then self.tempSubTree2 = tree
-        end
-    end
     local deep = number
-   -- print("get - expr: "..tree.expr.data.."| number: "..number)
-    if(number>=1)then
-        if(tree.left~=nil and tree.left.type~=nil and tree.rigth~=nil and tree.rigth.type~=nil)then
-            return number
-        end
-        if(tree.left~=nil and tree.left.type==nil)then
-            deep = treeManager:getIndexedSubTree(tree.left,number-1,selection)
-        end
-        if(tree.rigth~=nil and tree.rigth.type==nil and deep>0)then
-            deep = treeManager:getIndexedSubTree(tree.rigth,deep-1,selection)
-        end
+    if(number>=0)then 
+        self["tempSubTree"..selection]=nil 
+        self["tempSubTree"..selection]=tree 
+        if(tree.left==nil and tree.rigth==nil)then return number end    
     else
-        if(selection==1)then     self.tempSubTree1 =tree
-        else 
-            if(selection==2)then self.tempSubTree2 =tree
-            end
-        end
+        if(number>=1)then     
+            if(tree.left~=nil and tree.left.type==nil)then deep = treeManager:getIndexedSubTree(tree.left,deep-1,selection) end
+            if(tree.rigth~=nil and tree.rigth.type==nil and deep>=1)then deep = treeManager:getIndexedSubTree(tree.rigth,deep-1,selection) end
+        end     
     end
     return deep
 end
 
-
+--[[
 function treeManager:setIndexedSubTree(tree,treeSubstitute,number)
     local deep = number
     --print("set - expr: "..tree.expr.data.."| number: "..number)
@@ -186,14 +187,7 @@ function treeManager:setIndexedSubTree(tree,treeSubstitute,number)
     end
     return deep
 end
+]]
 
-
-function treeManager:getCuadraticError(tree,listOfValues,fx)
-    local error=0
-    for index = 1,#listOfValues,1 do
-        error = error + math.pow(listOfValues[index][fx]- treeManager:EvaluateFunction(tree,listOfValues[index]),2)
-    end
-    return error/#listOfValues
-end
 
 return treeManager
