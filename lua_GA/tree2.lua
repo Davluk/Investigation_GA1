@@ -1,5 +1,6 @@
 local treeManager = {}
 
+--verified
 function treeManager:initTreeManager(operators,terminals,variables,operator_functions)
     self.op = operators
     self.tr = terminals
@@ -7,18 +8,23 @@ function treeManager:initTreeManager(operators,terminals,variables,operator_func
     self.functions = operator_functions
 end
 
-function treeManager:NewTree(maxdepth,listOfValues,fx)
+
+--verified
+function treeManager:NewTree(maxdepth,fx)
     local tree = {}
     local expr = {type='op',data=self.op[math.random( #self.op )]}
     tree.data = self:newNode(expr,self:GenRandomNode(),self:GenRandomNode(),maxdepth)
     return tree
 end
 
+--???
 function treeManager:NewSubTree(maxdepth,listOfValues,fx)
     local expr = {type='op',data=self.op[math.random( #self.op )]}
     return self:newNode(expr,self:GenRandomNode(),self:GenRandomNode(),maxdepth)
 end
 
+
+--verified
 function treeManager:GenRandomNode()
     local coin = math.random( 10 )
     if coin>5 then
@@ -33,6 +39,7 @@ function treeManager:GenRandomNode()
     end
 end
 
+--vefified
 function treeManager:newNode(expr,left,rigth,maxdepth)
     local node = {}
     node.expr = expr
@@ -54,6 +61,8 @@ function treeManager:newNode(expr,left,rigth,maxdepth)
     return node
 end
 
+
+--verified
 function treeManager:printInOrder(tree)
     io.write('( ')
     if(tree.left.type ~= nil)then 
@@ -71,6 +80,8 @@ function treeManager:printInOrder(tree)
     io.write(' )')
 end
 
+
+--verified
 function treeManager:printPosOrder(tree)
     io.write("("..tree.expr.data.." ")
     if(tree.left.type ~= nil)then 
@@ -88,6 +99,8 @@ function treeManager:printPosOrder(tree)
     io.write(")")
 end
 
+
+--verified
 function treeManager:EvaluateFunction(tree,currentVarValues)
     local left_operand 
     local rigth_operand 
@@ -112,6 +125,8 @@ function treeManager:EvaluateFunction(tree,currentVarValues)
     return self.functions[tree.expr.data](left_operand,rigth_operand)
 end
 
+
+--verified
 function treeManager:countOperators(tree)
     local counter = 1
     if(tree.left.type ==nil)then counter = counter + treeManager:countOperators(tree.left) end
@@ -119,8 +134,14 @@ function treeManager:countOperators(tree)
     return counter
 end
 
-function treeManager:getIndexedSubTree(tree,number)
-    self.tempSubTree = tree
+
+--verified
+function treeManager:getIndexedSubTree(tree,number,selection)
+    if(selection==1)then self.tempSubTree1 = tree
+    else
+        if(selection==2)then self.tempSubTree2 = tree
+        end
+    end
     local deep = number
    -- print("get - expr: "..tree.expr.data.."| number: "..number)
     if(number>=1)then
@@ -128,16 +149,22 @@ function treeManager:getIndexedSubTree(tree,number)
             return number
         end
         if(tree.left~=nil and tree.left.type==nil)then
-            deep = treeManager:getIndexedSubTree(tree.left,number-1)
+            deep = treeManager:getIndexedSubTree(tree.left,number-1,selection)
         end
         if(tree.rigth~=nil and tree.rigth.type==nil and deep>0)then
-            deep = treeManager:getIndexedSubTree(tree.rigth,deep-1)
+            deep = treeManager:getIndexedSubTree(tree.rigth,deep-1,selection)
         end
     else
-        self.tempSubTree = tree
+        if(selection==1)then     self.tempSubTree1 =tree
+        else 
+            if(selection==2)then self.tempSubTree2 =tree
+            end
+        end
     end
     return deep
 end
+
+
 function treeManager:setIndexedSubTree(tree,treeSubstitute,number)
     local deep = number
     --print("set - expr: "..tree.expr.data.."| number: "..number)
@@ -152,7 +179,10 @@ function treeManager:setIndexedSubTree(tree,treeSubstitute,number)
             deep = treeManager:setIndexedSubTree(tree.rigth,treeSubstitute,deep-1)
         end
     else
-        tree=treeSubstitute
+        print(tree)
+        print(treeSubstitute)
+        local _subtree = table.unpack(treeSubstitute)
+        tree=_subtree
     end
     return deep
 end
