@@ -22,39 +22,39 @@ math.randomseed(os.time())
 tr:initTreeManager(operators,terminals,variables,operator_functions)
 mytree1 = tr:NewTree(6,variable_values,'y')
 mytree2 = tr:NewTree(6,variable_values,'y')
-tr:printPosOrder(mytree1.data)
-print()
-tr:printPosOrder(mytree2.data)
-mytree1.fittness = tr:getCuadraticError(mytree1.data,variable_values,'y')
-mytree2.fittness = tr:getCuadraticError(mytree2.data,variable_values,'y')
-io.write('\n')
-print("evaluation 1: "..tr:EvaluateFunction(mytree1.data,variable_values[1]))
-print("evaluaiton 2: "..tr:EvaluateFunction(mytree2.data,variable_values[1]))
-print("fit1: "..mytree1.fittness)
-print("fit2: "..mytree2.fittness)
 
-op1 = tr:countOperators(mytree1.data)
-op2 = tr:countOperators(mytree2.data)
+tr:printPosOrderIndex(mytree1)
+print()
+tr:printPosOrderIndex(mytree2)
+print()
+
+op1 = tr:countOperatorsIndex(mytree1)
+op2 = tr:countOperatorsIndex(mytree2)
+
 print("operators 1: "..op1)
 print("operators 2: "..op2)
+
 op1 = math.ceil( op1/2 )
 op2 = math.ceil( op2/2 )
+
 print("op1 half: "..op1)
 print("op2 half: "..op2)
 
-
 print("\nsubtree1_selected: ")
-tr:getIndexedSubTree(mytree1.data,op1,1)
+tr:getIndexedSubTreeIndex(mytree1,op1,1)
 tr:printPosOrder(tr.tempSubTree1)
 print(tr.tempSubTree1)
 
 print("\nsubtree2_selected: ")
-tr:getIndexedSubTree(mytree2.data,op2,2)
+tr:getIndexedSubTreeIndex(mytree2,op2,2)
 tr:printPosOrder(tr.tempSubTree2)
 print(tr.tempSubTree2)
 
 tr.tempSubTree1 = tr.tempSubTree2
+print()
 tr:printPosOrder(tr.tempSubTree1)
+print()
+tr:printPosOrderIndex(mytree1)
 print()
 --[[
 print("\nnew_individual: ")
