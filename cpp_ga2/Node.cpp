@@ -18,7 +18,6 @@ struct Node
     Node(){}
     explicit Node(Node* copy){ this.data	= copy->data; this.left = copy->left; this.rigth = copy->rigth; }
     explicit Node(T _data){this.data=_data;this.left=NULL;this.rigth=NULL;}
-    Node(T _data,Node* _left,Node* _rigth){ this.data=_data;this.left=_left;this.rigth=_rigth;}
 };
 
 template<typename T>
@@ -60,5 +59,21 @@ Node<T> newNode(int _fill_selection_,int depth,T _data,T (*getData)(),T* (*getLe
 
 template <typename T,typename U>
 U getData(Node<T> _temp_node,U (*Interpreter)(T)){ return Interpreter(_temp_node.data); }
+
+template <typename T>
+int findIndexedSubTree(int index,Node<T>* _tree_root,Node<T>* OutNode,bool (*isNode)(T))
+{
+	int deep = index;
+	if(index>=0){ OutNode = _tree_root; }
+	else{
+		if(index>=1){
+			if(_tree_root->left!=NULL and isNode(_tree_root->left->data))
+			{ deep = findIndexedSubTree(deep-1,_tree_root->left,OutNode,isNode); }
+			if(_tree_root->rigth!=NULL and isNode(_tree_root->rigth->data))
+			{ deep = findIndexedSubTree(deep-1,_tree_root->rigth,OutNode,isNode);}
+		}
+	}
+	return deep;
+}
 
 #endif
