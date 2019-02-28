@@ -18,22 +18,22 @@ typedef struct METADATA{
 } metaD;
 
 template<typename T>
-int countElements(T elements[]) {return (int)sizeof(elements)/sizeof(elements[0]);} 
+int countElements(T elements[]) {return elements.count();} 
 
 metaD GETLEAF()
 {
 	metaD tempMD;
 	int coin = rand()%4;
 	if(coin>2)
-	{ tempMD.data = rand()%countElements( terRep ); tempMD.type=_term; }
+	{ tempMD.data = rand()%TERMINAL_SIZE; tempMD.type=_term; }
 	else
-	{ tempMD.data = rand()%countElements( varRep ); tempMD.type=_var; }
+	{ tempMD.data = rand()%VARIABLE_SIZE; tempMD.type=_var; }
 	return tempMD;
 }
 
 metaD GETOP(){ 
 	metaD tempMD;
-	tempMD.data = rand()%countElements( opRep ); tempMD.type = _op;
+	tempMD.data = rand()%OPERANDS_SIZE; tempMD.type = _op;
 	return tempMD;
 }
 
@@ -48,7 +48,7 @@ char GETCHARREP(metaD _metadata){
 	return '.';
 }
 
-bool ISNODE(metaD _metadata){ return _metadata.data==_op; }
+bool ISNODE(metaD _metadata){ return _metadata.type==_op; }
 
 /*
 	funciones de control :
@@ -67,7 +67,7 @@ int main(int argc, char const *argv[])
 {
 	srand((int)time(NULL));
 	Node<metaD> *myNode;
-	myNode=newNode(RAND_FILL,4,GETOP(),&GETLEAF,&GETOP);
+	myNode=newNode(HALF_HALF,3,GETOP(),&GETLEAF,&GETOP);
 	PrintPosOrder( myNode, &ISNODE, &GETCHARREP );
 
 	return 0;
