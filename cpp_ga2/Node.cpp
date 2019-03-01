@@ -26,7 +26,8 @@ Node<T>* newNode(int _fill_selection_,int depth,T _data,T (*getLeaf)(),T (*getOp
 	Node<T>* temp_node=new Node<T>();
 	temp_node->data = _data;
 	int coin=0;
-	if(depth==1){ temp_node->left =new Node<T>(getLeaf()); temp_node->rigth =new Node<T>(getLeaf()); goto _end_new_node;}
+	if(depth==1)
+		{ temp_node->left =new Node<T>(getLeaf()); temp_node->rigth =new Node<T>(getLeaf()); goto _end_new_node;}
 	else
 	{
 		switch(_fill_selection_)
@@ -58,6 +59,36 @@ Node<T>* newNode(int _fill_selection_,int depth,T _data,T (*getLeaf)(),T (*getOp
 	return temp_node;
 }
 
+template<typename T,typename U>
+U evalFunction(Node<T>* _root_node,U (*executeExpresion)(int,U,U),bool (*isNode)(T),bool (*isVar)(T),int (*getVarIndex)(T),U (*getTerminal)(T),int (*getExpresionIndex)(T),U* values)
+{
+	U left_operand;
+	U rigth_operand;
+	if(isNode(_root_node->left->data))
+	{ left_operand = evalFunction(_root_node->left,executeExpresion,isNode,isVar,getVarIndex,getTerminal,getExpresionIndex,values); }
+	else { 
+		if(isVar(_root_node->left->data)) { left_operand = values[getVarIndex(_root_node->left->data)]; }
+		else { left_operand = getTerminal(_root_node->left->data); }
+	}
+
+	if(isNode(_root_node->rigth->data))
+	{ rigth_operand = evalFunction(_root_node->rigth,executeExpresion,isNode,isVar,getVarIndex,getTerminal,getExpresionIndex,values); }
+	else { 
+		if(isVar(_root_node->rigth->data)) { rigth_operand = values[getVarIndex(_root_node->rigth->data)]; }
+		else { rigth_operand = getTerminal(_root_node->rigth->data); }
+	}
+	return executeExpresion(getExpresionIndex(_root_node->data),left_operand,rigth_operand);
+}
+
+template<typename T>
+int nodeCounter(Node<T>* _root_node,bool (isNode)(T))
+{
+	int counter = 1;
+	if(_root_node->left!=NULL && isNode(_root_node->left->data)){ counter+= nodeCounter(_root_node->left,isNode); }
+	if(_root_node->rigth!=NULL && isNode(_root_node->rigth->data)){ counter+= nodeCounter(_root_node->rigth,isNode); }
+	return counter;
+}
+
 template<typename T>
 void PrintPosOrder(Node<T>* _root_node,bool (*isNode)(T),char (*getCharRep)(T))
 {
@@ -78,20 +109,19 @@ void PrintPosOrder(Node<T>* _root_node,bool (*isNode)(T),char (*getCharRep)(T))
 }
 
 template <typename T,typename U>
-U getData(Node<T> _temp_node,U (*Interpreter)(T)){ return Interpreter(_temp_node->data); }
+U getData(Node<T>* _temp_node,U (*Interpreter)(T)){ return Interpreter(_temp_node->data); }
 
 template <typename T>
-int findIndexedSubTree(int index,Node<T>* _tree_root,Node<T>* OutNode,bool (*isNode)(T))
+int findIndexedSubTree(int index,Node<T>* _root_node,Node<T>* OutNode,bool (*isNode)(T),char (*getCharRep)(T))
 {
 	int deep = index;
-	if(index>=0){ OutNode = _tree_root; }
-	else{
-		if(index>=1){
-			if(_tree_root->left!=NULL && isNode(_tree_root->left->data))
-			{ deep = findIndexedSubTree(deep-1,_tree_root->left,OutNode,isNode); }
-			if(_tree_root->rigth!=NULL && isNode(_tree_root->rigth->data))
-			{ deep = findIndexedSubTree(deep-1,_tree_root->rigth,OutNode,isNode);}
-		}
+	if(index==0){  printf("_{ %c , %d }_\t",getCharRep(_root_node->data),deep);OutNode = _root_node;PrintPosOrder(OutNode,isNode,getCharRep);printf("\n");}
+	else if(index>=1){
+		//printf("{ %c , %d }",getCharRep(_root_node->data),deep);
+		if(_root_node->left!=NULL && isNode(_root_node->left->data))
+		{ deep = findIndexedSubTree(deep-1,_root_node->left,OutNode,isNode,getCharRep); }
+		if(_root_node->rigth!=NULL && isNode(_root_node->rigth->data))
+		{ deep = findIndexedSubTree(deep-1,_root_node->rigth,OutNode,isNode,getCharRep);}
 	}
 	return deep;
 }
