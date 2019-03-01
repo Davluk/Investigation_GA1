@@ -84,19 +84,48 @@ float EVEXP(int selection,float a,float b)
 int main(int argc, char const *argv[])
 {
 	srand((int)time(NULL));
-	Node<metaD> *myNode;
-	Node<metaD> *subnode=new Node<metaD>();
-	int nodeCount=0;
-	int half_nodes=0;
-	myNode=newNode(HALF_HALF,3,GETOP(),&GETLEAF,&GETOP);
-	PrintPosOrder( myNode, ISNODE, GETCHARREP );
-	printf("\n evaluation_result: %f\n",evalFunction(myNode,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,_values[0]));
-	nodeCount = nodeCounter(myNode,ISNODE);
-	half_nodes = (int)ceil(nodeCount/2);
-	printf("number of nodes : %d, half_ceiled: %d\n",nodeCount,half_nodes);
-	findIndexedSubTree(half_nodes,myNode,subnode,ISNODE,GETCHARREP);
-	//printf("selected subtree: \n");
-	PrintPosOrder( myNode ,ISNODE,GETCHARREP);printf("\n");
-	PrintPosOrder( subnode,ISNODE,GETCHARREP);
+	Node<metaD> *myNode1;
+	Node<metaD> *myNode2;
+	Node<metaD> *subnode1=new Node<metaD>();
+	Node<metaD> *subnode2=new Node<metaD>();
+
+	int nodeCount1=0;
+	int nodeCount2=0;
+	int half_nodes1=0;
+	int half_nodes2=0;
+
+	myNode1=newNode(HALF_HALF,3,GETOP(),&GETLEAF,&GETOP);
+	myNode2=newNode(HALF_HALF,3,GETOP(),&GETLEAF,&GETOP);
+
+	PrintPosOrder( myNode1, ISNODE, GETCHARREP );
+	printf("\n\n");
+	PrintPosOrder( myNode2, ISNODE, GETCHARREP );
+	printf("\n");
+
+	printf("\n evaluation_result1: %f\n",evalFunction(myNode1,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,_values[0]));
+	printf("\n evaluation_result2: %f\n",evalFunction(myNode2,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,_values[0]));
+
+	nodeCount1 = nodeCounter(myNode1,ISNODE);
+	nodeCount2 = nodeCounter(myNode2,ISNODE);
+
+	half_nodes1 = (int)ceil(nodeCount1/2);
+	half_nodes2 = (int)ceil(nodeCount2/2);
+
+	printf("number of nodes 1: %d, half_ceiled: %d\n",nodeCount1,half_nodes1);
+	printf("number of nodes 2: %d, half_ceiled: %d\n",nodeCount2,half_nodes2);
+
+	getIndexedSubTree(half_nodes1,myNode1,subnode1,ISNODE);
+	getIndexedSubTree(half_nodes2,myNode2,subnode2,ISNODE);
+
+	printf("selected subtree1: \n");
+	PrintPosOrder( subnode1,ISNODE,GETCHARREP);
+	printf("\n");
+	printf("selected subtree2: \n");
+	PrintPosOrder( subnode2,ISNODE,GETCHARREP);
+
+	printf("\nsubstitution...\n");
+	setIndexedSubTree(half_nodes1,myNode1,subnode2,ISNODE);
+	PrintPosOrder(myNode1,ISNODE,GETCHARREP);
+	
 	return 0;
 }
