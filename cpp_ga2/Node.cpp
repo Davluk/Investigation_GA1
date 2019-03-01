@@ -112,16 +112,29 @@ template <typename T,typename U>
 U getData(Node<T>* _temp_node,U (*Interpreter)(T)){ return Interpreter(_temp_node->data); }
 
 template <typename T>
-int findIndexedSubTree(int index,Node<T>* _root_node,Node<T>* OutNode,bool (*isNode)(T),char (*getCharRep)(T))
+int getIndexedSubTree(int index,Node<T>* _root_node,Node<T>* OutNode,bool (*isNode)(T))
 {
 	int deep = index;
-	if(index==0){  printf("_{ %c , %d }_\t",getCharRep(_root_node->data),deep);OutNode = _root_node;PrintPosOrder(OutNode,isNode,getCharRep);printf("\n");}
+	if(index==0){ *OutNode = *_root_node; }
 	else if(index>=1){
-		//printf("{ %c , %d }",getCharRep(_root_node->data),deep);
 		if(_root_node->left!=NULL && isNode(_root_node->left->data))
-		{ deep = findIndexedSubTree(deep-1,_root_node->left,OutNode,isNode,getCharRep); }
+		{ deep = getIndexedSubTree(deep-1,_root_node->left,OutNode,isNode); }
 		if(_root_node->rigth!=NULL && isNode(_root_node->rigth->data))
-		{ deep = findIndexedSubTree(deep-1,_root_node->rigth,OutNode,isNode,getCharRep);}
+		{ deep = getIndexedSubTree(deep-1,_root_node->rigth,OutNode,isNode);}
+	}
+	return deep;
+}
+
+template <typename T>
+int setIndexedSubTree(int index,Node<T>* _root_node,Node<T>* InNode,bool (*isNode)(T))
+{
+	int deep = index;
+	if(index==0){ *_root_node=*InNode; }
+	else if(index>=1){
+		if(_root_node->left!=NULL && isNode(_root_node->left->data))
+		{ deep = setIndexedSubTree(deep-1,_root_node->left,InNode,isNode); }
+		if(_root_node->rigth!=NULL && isNode(_root_node->rigth->data))
+		{ deep = setIndexedSubTree(deep-1,_root_node->rigth,InNode,isNode);}
 	}
 	return deep;
 }
