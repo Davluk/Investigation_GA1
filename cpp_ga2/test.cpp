@@ -16,6 +16,17 @@ char terRep[TERMINAL_SIZE]= {'1','2','3','4','5','6','7','8','9'};
 char opRep[OPERANDS_SIZE] = {'+','-','*','/'};
 char varRep[VARIABLE_SIZE]= {'x','y'};
 
+template<typename T,typename U>
+float cuadraticError(Node<T> *_current_dude,U (*exExp)(int,U,U),bool (*isNode)(T),bool (*isVar)(T),int (*getVrIn)(T),U (*getTer)(T),int (*getExpInd)(T),int Function_desired_value,U (*_list_of_values)[VARIABLE_SIZE],size_t rows)
+{
+	float error =0.0f;
+	for(int index = 0;index<rows;index++)
+	{
+		error+= pow(_list_of_values[index][Function_desired_value]-evalFunction(_current_dude,exExp,isNode,isVar,getVrIn,getTer,getExpInd,_list_of_values[index]),2)/rows;
+	}
+	return error;
+}
+
 typedef struct METADATA{ 
 	int data; int type;
 	METADATA(){ data = 0; type = 0; }
@@ -29,15 +40,15 @@ metaD GETLEAF()
 	metaD tempMD;
 	int coin = rand()%4;
 	if(coin>2)
-	{ tempMD.data = rand()%TERMINAL_SIZE; tempMD.type=_term; }
+	{ tempMD.data = rand()%sizeof(terRep)/sizeof(terRep[0]); tempMD.type=_term; }
 	else
-	{ tempMD.data = rand()%VARIABLE_SIZE; tempMD.type=_var; }
+	{ tempMD.data = rand()%(sizeof(varRep)/sizeof(varRep[0])-1); tempMD.type=_var; }
 	return tempMD;
 }
 
 metaD GETOP(){ 
 	metaD tempMD;
-	tempMD.data = rand()%OPERANDS_SIZE; tempMD.type = _op;
+	tempMD.data = rand()%sizeof(opRep)/sizeof(opRep[0]); tempMD.type = _op;
 	return tempMD;
 }
 
@@ -103,7 +114,10 @@ int main(int argc, char const *argv[])
 	printf("\n");
 
 	printf("\n evaluation_result1: %f\n",evalFunction(myNode1,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,_values[0]));
+	printf("\n cuadraticError1: %f\n",cuadraticError(myNode1,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,1,_values,(size_t)sizeof(_values)/sizeof(_values[0])));
+
 	printf("\n evaluation_result2: %f\n",evalFunction(myNode2,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,_values[0]));
+	printf("\n cuadraticError2: %f\n",cuadraticError(myNode2,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,1,_values,(size_t)sizeof(_values)/sizeof(_values[0])));
 
 	nodeCount1 = nodeCounter(myNode1,ISNODE);
 	nodeCount2 = nodeCounter(myNode2,ISNODE);
