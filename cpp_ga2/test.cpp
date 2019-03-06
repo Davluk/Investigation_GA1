@@ -11,10 +11,10 @@ const int OPERANDS_SIZE =4;
 const int VARIABLE_SIZE =2;
 
 enum nodeTypes{_op,_var,_term};
-float _values[][VARIABLE_SIZE]={{0.0f,-6.0f},{0.1f,-1.0f},{2.0f,4.0f},{3.0f,9.0f},{4.0f,14.0f}};
+float _values[][VARIABLE_SIZE]={{0.0f,0.0f},{1.0f,1.0f},{2.0f,4.0f},{3.0f,9.0f},{4.0f,16.0f},{5.0f,25.0f}};
 char terRep[TERMINAL_SIZE]= {'1','2','3','4','5','6','7','8','9'};
 char opRep[OPERANDS_SIZE] = {'+','-','*','/'};
-char varRep[VARIABLE_SIZE]= {'x','y'};
+char varRep[VARIABLE_SIZE]= {'x','y'};//the last element is the F(x)
 
 template<typename T,typename U>
 float cuadraticError(Node<T> *_current_dude,U (*exExp)(int,U,U),bool (*isNode)(T),bool (*isVar)(T),int (*getVrIn)(T),U (*getTer)(T),int (*getExpInd)(T),int Function_desired_value,U (*_list_of_values)[VARIABLE_SIZE],size_t rows)
@@ -32,9 +32,6 @@ typedef struct METADATA{
 	METADATA(){ data = 0; type = 0; }
 } metaD;
 
-template<typename T>
-int countElements(T elements[]) {return elements.count();} 
-
 metaD GETLEAF()
 {
 	metaD tempMD;
@@ -42,7 +39,7 @@ metaD GETLEAF()
 	if(coin>2)
 	{ tempMD.data = rand()%sizeof(terRep)/sizeof(terRep[0]); tempMD.type=_term; }
 	else
-	{ tempMD.data = rand()%(sizeof(varRep)/sizeof(varRep[0])-1); tempMD.type=_var; }
+	{ tempMD.data = rand()%((sizeof(varRep)/sizeof(varRep[0]))-1); tempMD.type=_var; }
 	return tempMD;
 }
 
@@ -122,7 +119,7 @@ int main(int argc, char const *argv[])
 	nodeCount1 = nodeCounter(myNode1,ISNODE);
 	nodeCount2 = nodeCounter(myNode2,ISNODE);
 
-	half_nodes1 = (int)ceil(nodeCount1/2);
+	half_nodes1 = (int)ceil(nodeCount1/5);
 	half_nodes2 = (int)ceil(nodeCount2/2);
 
 	printf("number of nodes 1: %d, half_ceiled: %d\n",nodeCount1,half_nodes1);
@@ -139,7 +136,11 @@ int main(int argc, char const *argv[])
 
 	printf("\nsubstitution...\n");
 	setIndexedSubTree(half_nodes1,myNode1,subnode2,ISNODE);
+	setIndexedSubTree(half_nodes2,myNode2,subnode1,ISNODE);
+
 	PrintPosOrder(myNode1,ISNODE,GETCHARREP);
+	printf("\n");
+	PrintPosOrder(myNode2,ISNODE,GETCHARREP);
 	
 	return 0;
 }
