@@ -16,16 +16,6 @@ char terRep[TERMINAL_SIZE]= {'1','2','3','4','5','6','7','8','9'};
 char opRep[OPERANDS_SIZE] = {'+','-','*','/'};
 char varRep[VARIABLE_SIZE]= {'x','y'};//the last element is the F(x)
 
-template<typename T,typename U>
-float cuadraticError(Node<T> *_current_dude,U (*exExp)(int,U,U),bool (*isNode)(T),bool (*isVar)(T),int (*getVrIn)(T),U (*getTer)(T),int (*getExpInd)(T),int Function_desired_value,U (*_list_of_values)[VARIABLE_SIZE],size_t rows)
-{
-	float error =0.0f;
-	for(int index = 0;index<rows;index++)
-	{
-		error+= pow(_list_of_values[index][Function_desired_value]-evalFunction(_current_dude,exExp,isNode,isVar,getVrIn,getTer,getExpInd,_list_of_values[index]),2)/rows;
-	}
-	return error;
-}
 
 typedef struct METADATA{ 
 	int data; int type;
@@ -111,10 +101,10 @@ int main(int argc, char const *argv[])
 	printf("\n");
 
 	printf("\n evaluation_result1: %f\n",evalFunction(myNode1,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,_values[0]));
-	printf("\n cuadraticError1: %f\n",cuadraticError(myNode1,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,1,_values,(size_t)sizeof(_values)/sizeof(_values[0])));
+	printf("\n cuadraticError1: %f\n",cuadraticError(myNode1,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,_values,(size_t)sizeof(_values)/sizeof(_values[0])));
 
 	printf("\n evaluation_result2: %f\n",evalFunction(myNode2,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,_values[0]));
-	printf("\n cuadraticError2: %f\n",cuadraticError(myNode2,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,1,_values,(size_t)sizeof(_values)/sizeof(_values[0])));
+	printf("\n cuadraticError2: %f\n",cuadraticError(myNode2,EVEXP,ISNODE,ISVAR,GETVARINDEX,GETTERMINAL,GETEXPINDEX,_values,(size_t)sizeof(_values)/sizeof(_values[0])));
 
 	nodeCount1 = nodeCounter(myNode1,ISNODE);
 	nodeCount2 = nodeCounter(myNode2,ISNODE);
