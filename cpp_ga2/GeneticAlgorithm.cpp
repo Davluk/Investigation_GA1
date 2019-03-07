@@ -2,7 +2,11 @@
 #ifndef GEN_ALG
 #define GEN_ALG
 
-// all the methods is for tree tratment
+/* ************************************************************* 
+*                                                              *
+*           all the methods is for tree tratment               *
+*                                                              *
+***************************************************************/
 
 #define HALF_CROSS 0
 #define PROP_CROSS 1
@@ -19,20 +23,26 @@ struct Indiv
 {
     Node<T>* chrom;
     float fitness; 
-    Indiv(){ }   
+    Indiv(){}   
 };
 
-/************************************************************************************************************
-*FS-> fill_selection; D -> depth; GO-> getOperand; GT -> getTerminal; EE-> evalExpresion; IN-> isNode       *
-*IV-> isVar; GVI-> getVarIndex; GEI-> getExpresionIndex; val-> values to model                              *
-************************************************************************************************************/
-template<typename T,typename U>
-Indiv<T>* newIndiv(int FS,int D,T (*GO)(),T (*GT)(),U (*EE)(int,U,U),bool (*IN)(T),bool (*IV)(T),int (*GVI)(T),int (*GEI)(T),int Fx,U* Val,size_t sizeVal)
+/***************************************************************************************************************
+*   FS-> fill_selection; D -> depth; GO-> getOperand; GT -> getTerminal; EE-> evalExpresion; IN-> isNode       *
+*   IV-> isVar; GVI-> getVarIndex; GEI-> getExpresionIndex; val-> values to model                              *
+***************************************************************************************************************/
+template<typename T,typename U,std::size_t  SIZE>
+Indiv<T>* newIndiv(int FS,int D,T (*GO)(),T (*GL)(),U (*EE)(int,U,U),bool (*IN)(T),bool (*IV)(T),int (*GVI)(T),U (*GT)(T),int (*GEI)(T),U (*Vals)[SIZE],size_t sizeVal)
 {
     Indiv<T>* temp_indiv = new Indiv<T>();
-    temp_indiv->chrom = newNode(FS,D,GO(),GT,GO);
-    temp_indiv->fitness = cuadraticError(temp_indiv->chrom,IN,IV,GVI,GT,GEI,Fx,Val,sizeVal);
+    temp_indiv->chrom = newNode(FS,D,GO(),GL,GO);
+    temp_indiv->fitness = cuadraticError(temp_indiv->chrom,EE,IN,IV,GVI,GT,GEI,Vals,sizeVal);
     return temp_indiv;
+}
+
+template<typename T>
+void MutateIndiv(int option,int index,Indiv<T>* someIndiv,bool (*IN)(),bool (*IV)(),T (*GL)(),T (*GO)())
+{
+    Indiv<T>* tempInd;
 }
 
 template<typename T>
