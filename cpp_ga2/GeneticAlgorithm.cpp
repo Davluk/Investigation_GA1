@@ -19,7 +19,7 @@ struct Indiv
 {
     Node<T>* chrom;
     float fitness; 
-    Indiv(){}   
+    Indiv(){ }   
 };
 
 /************************************************************************************************************
@@ -34,6 +34,7 @@ Indiv<T>* newIndiv(int FS,int D,T (*GO)(),T (*GT)(),U (*EE)(int,U,U),bool (*IN)(
     temp_indiv->fitness = cuadraticError(temp_indiv->chrom,IN,IV,GVI,GT,GEI,Fx,Val,sizeVal);
     return temp_indiv;
 }
+
 template<typename T>
 void CrossIndivs(int Option,float porc,Indiv<T>* parentA,Indiv<T>* parentB,bool (*IN)())
 {
@@ -45,11 +46,11 @@ void CrossIndivs(int Option,float porc,Indiv<T>* parentA,Indiv<T>* parentB,bool 
     int Index_B=0;
     switch (Option){
         case HALF_CROSS: 
-            Index_A = (int)countOperandsA/2; Index_b = (int)countOperandsb/2; break;
+            Index_A = (int)countOperandsA/2; Index_B = (int)countOperandsB/2; break;
         case PROP_CROSS://porcentage proportional cross, the value is from 0 to 1
-            Index_A = (int)countOperandsA*(porc); Index_b = (int)countOperandsb*(1-porc); break;    
+            Index_A = (int)countOperandsA*(porc); Index_B = (int)countOperandsB*(1-porc); break;    
         case RAND_CROSS://aleatory index
-            Index_A = rand()%countOperandsA; Index_b = rand()%countOperandsb; break;    
+            Index_A = rand()%countOperandsA; Index_B = rand()%countOperandsB; break;    
     }
     /*gets the indexed operand over the trees*/
     getIndexedSubTree(Index_A,parentA,subIndivA,IN);
