@@ -1,5 +1,5 @@
 #include <iostream>
-#include "GeneticAlgorithm.cpp"
+#include "GeneticProgramming.cpp"
 
 const int TER_SIZ =9;
 const int OP_SIZ  =4;
@@ -77,6 +77,7 @@ float EvEx(int selection,float a,float b)
 int main(int argc, char const *argv[])
 {
 	Indiv<mD>* myindiv = newIndiv(HALF_HALF,5,GETO,GETL,EvEx,IN,IV,GVI,GT,GEI,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
+
 	std::cout<< "holamundo";
 	return 0;
 }
