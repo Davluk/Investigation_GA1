@@ -21,6 +21,7 @@
 #define LEAF_MUT 0
 #define OPER_MUT 1
 #define SUBT_BUT 2
+#define NO_MUT 3
 
 /*********************************************
 *   structure for tratment with individuals  *
@@ -44,6 +45,8 @@ struct GenAlg{
     int   indiv_init_size;
     int   selection_opt;
     int   fill_selection;
+    int   m_selection;
+    int   c_selection;
     float mutation_rate;
     float crossover_rate;
     //functions releated with the treatment of the tree individuals
@@ -58,12 +61,14 @@ struct GenAlg{
     GenAlg(){}
 };
 
-template<typename T,typename U,std::size_t SIZE>
-GenAlg<T,U>* newGA(int fillS,int pobSiz,int indvSiz,float mutrt,float crossrt, U (*eve)(), U (*gtr)(), T (*gop)(),T (*glf)(),bool (*ind)(),bool (*ivr)(),int (*gvi)(),int (*gei)(),U (*Vals)[SIZE],size_t sizeVal)
+template<typename T,typename U>
+GenAlg<T,U>* newGA(int fillS,int ms,int cs,int pobSiz,int indvSiz,float mutrt,float crossrt, U (*eve)(int,U,U), U (*gtr)(T), T (*gop)(),T (*glf)(),bool (*ind)(T),bool (*ivr)(T),int (*gvi)(T),int (*gei)(T))
 {
 
     GenAlg<T,U>* tmpGA = new GenAlg<T,U>();
     tmpGA->fill_selection = fillS;
+    tmpGA->m_selection = ms;
+    tmpGA->c_selection = cs;
     tmpGA->poblation_size = pobSiz;
     tmpGA->indiv_init_size = indvSiz;
     tmpGA->mutation_rate = mutrt;
@@ -76,11 +81,16 @@ GenAlg<T,U>* newGA(int fillS,int pobSiz,int indvSiz,float mutrt,float crossrt, U
     tmpGA->IVR = ivr;
     tmpGA->GVI = gvi;
     tmpGA->GEI = gei;
-    for(int index = 0;index<pobSiz;index++)
-    {
-        *(tmpGA->INDIVIDUALS[index])=newIndiv(fillS,indvSiz,gop,glf,eve,ind,ivr,gvi,gtr,gei,Vals,sizeVal);
-    }
     return tmpGA;
+}
+template<typename T,typename U,std::size_t SIZE>
+void initPob(GenAlg<T,U>* tmpga,U (*_vals)[SIZE],size_t size_vals) 
+{
+    for(int index = 0;index<tmpga->poblation_size;index++)
+    {
+        printf("%d\n",index);
+        tmpga->INDIVIDUALS[index]=newIndiv(tmpga->fill_selection,tmpga->indiv_init_size,tmpga->GOP,tmpga->GLF,tmpga->EVE,tmpga->IND,tmpga->IVR,tmpga->GVI,tmpga->GTR,tmpga->GEI,_vals,size_vals);
+    }
 }
 
 /***************************************************************************************************************
