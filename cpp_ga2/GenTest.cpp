@@ -6,6 +6,7 @@ const int max_depth = 2;
 const int fill_opt = HALF_HALF;
 const int m_opt = LEAF_MUT;
 const int c_opt = NO_MUT;
+const int s_opt = TOURN;
 const float m_rate = 0.05f;
 const float c_rate = 0.90f;
 
@@ -84,11 +85,11 @@ float EvEx(int selection,float a,float b)
 
 int main(int argc, char const *argv[])
 {
-	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,pop_size,max_depth,m_rate,c_rate,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI);
+	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,m_rate,c_rate,0.7f,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI);
 	initPobRec(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]),0);
 
-	//initPob(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
-	//mygenalg->INDIVIDUALS[0]=myindiv_1; delete myindiv_1;
+
+
 	std::cout<< "holamundo";
 	return 0;
 }
