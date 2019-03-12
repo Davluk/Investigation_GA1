@@ -1,7 +1,7 @@
 #include <iostream>
 #include "GeneticProgramming.cpp"
 
-const int pop_size = 3;
+const int pop_size = 100;
 const int max_depth = 2;
 const int fill_opt = HALF_HALF;
 const int m_opt = LEAF_MUT;
@@ -84,9 +84,11 @@ float EvEx(int selection,float a,float b)
 
 int main(int argc, char const *argv[])
 {
-	Indiv<mD>* myindiv_1 = newIndiv(HALF_HALF,5,GETO,GETL,EvEx,IN,IV,GVI,GT,GEI,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
 	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,pop_size,max_depth,m_rate,c_rate,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI);
-	initPob(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
+	initPobRec(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]),0);
+
+	//initPob(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
+	//mygenalg->INDIVIDUALS[0]=myindiv_1; delete myindiv_1;
 	std::cout<< "holamundo";
 	return 0;
 }
