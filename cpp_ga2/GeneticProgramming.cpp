@@ -39,8 +39,8 @@ struct Indiv
 ********************************************/  
 template<typename T,typename U>
 struct GenAlg{
-    Indiv<T>** INDIVIDUALS;
-    Indiv<T>** NEWINDIVIDUALS;
+    Indiv<T>* INDIVIDUALS;
+    Indiv<T>* NEWINDIVIDUALS;
     int   poblation_size;
     int   indiv_init_size;
     int   selection_opt;
@@ -66,6 +66,8 @@ GenAlg<T,U>* newGA(int fillS,int ms,int cs,int pobSiz,int indvSiz,float mutrt,fl
 {
 
     GenAlg<T,U>* tmpGA = new GenAlg<T,U>();
+    tmpGA->INDIVIDUALS=new Indiv<T>[pobSiz];
+    tmpGA->NEWINDIVIDUALS=new Indiv<T>[pobSiz];
     tmpGA->fill_selection = fillS;
     tmpGA->m_selection = ms;
     tmpGA->c_selection = cs;
@@ -83,14 +85,17 @@ GenAlg<T,U>* newGA(int fillS,int ms,int cs,int pobSiz,int indvSiz,float mutrt,fl
     tmpGA->GEI = gei;
     return tmpGA;
 }
-template<typename T,typename U,std::size_t SIZE>
-void initPob(GenAlg<T,U>* tmpga,U (*_vals)[SIZE],size_t size_vals) 
+
+template<typename T, typename U,std::size_t SIZE>
+void initPobRec(GenAlg<T,U>* tmpga,U (*_vals)[SIZE],size_t size_vals,int counter)
 {
-    for(int index = 0;index<tmpga->poblation_size;index++)
-    {
-        printf("%d\n",index);
-        tmpga->INDIVIDUALS[index]=newIndiv(tmpga->fill_selection,tmpga->indiv_init_size,tmpga->GOP,tmpga->GLF,tmpga->EVE,tmpga->IND,tmpga->IVR,tmpga->GVI,tmpga->GTR,tmpga->GEI,_vals,size_vals);
+    printf("%d ",counter);
+    if(counter==tmpga->poblation_size){return;}
+    else{
+        tmpga->INDIVIDUALS[counter]=*newIndiv(tmpga->fill_selection,tmpga->indiv_init_size,tmpga->GOP,tmpga->GLF,tmpga->EVE,tmpga->IND,tmpga->IVR,tmpga->GVI,tmpga->GTR,tmpga->GEI,_vals,size_vals);
+        initPobRec(tmpga,_vals,size_vals,counter+1);
     }
+    return;
 }
 
 /***************************************************************************************************************
