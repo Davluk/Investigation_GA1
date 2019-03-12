@@ -23,6 +23,13 @@
 #define SUBT_BUT 2
 #define NO_MUT 3
 
+/*
+*
+*/
+#define TOURN 0
+#define ROULT 1
+
+
 /*********************************************
 *   structure for tratment with individuals  *
 *********************************************/
@@ -49,6 +56,7 @@ struct GenAlg{
     int   c_selection;
     float mutation_rate;
     float crossover_rate;
+    float cross_proportion;
     //functions releated with the treatment of the tree individuals
     U       (*EVE)(int,U,U);    // evaluate expresion
     U       (*GTR)(T);          //get terminal
@@ -62,7 +70,8 @@ struct GenAlg{
 };
 
 template<typename T,typename U>
-GenAlg<T,U>* newGA(int fillS,int ms,int cs,int pobSiz,int indvSiz,float mutrt,float crossrt, U (*eve)(int,U,U), U (*gtr)(T), T (*gop)(),T (*glf)(),bool (*ind)(T),bool (*ivr)(T),int (*gvi)(T),int (*gei)(T))
+GenAlg<T,U>* newGA(int fillS,int ms,int cs,int ss,int pobSiz,int indvSiz,float mutrt,float crossrt,float cross_prop,
+ U (*eve)(int,U,U), U (*gtr)(T), T (*gop)(),T (*glf)(),bool (*ind)(T),bool (*ivr)(T),int (*gvi)(T),int (*gei)(T))
 {
 
     GenAlg<T,U>* tmpGA = new GenAlg<T,U>();
@@ -71,10 +80,12 @@ GenAlg<T,U>* newGA(int fillS,int ms,int cs,int pobSiz,int indvSiz,float mutrt,fl
     tmpGA->fill_selection = fillS;
     tmpGA->m_selection = ms;
     tmpGA->c_selection = cs;
+    tmpGA->s_selection = cs;
     tmpGA->poblation_size = pobSiz;
     tmpGA->indiv_init_size = indvSiz;
     tmpGA->mutation_rate = mutrt;
     tmpGA->crossover_rate = crossrt;
+    tmpGA->cross_proportion= cross_prop;
     tmpGA->EVE = eve;
     tmpGA->GTR = gtr;
     tmpGA->GOP = gop;
@@ -92,7 +103,8 @@ void initPobRec(GenAlg<T,U>* tmpga,U (*_vals)[SIZE],size_t size_vals,int counter
     printf("%d ",counter);
     if(counter==tmpga->poblation_size){return;}
     else{
-        tmpga->INDIVIDUALS[counter]=*newIndiv(tmpga->fill_selection,tmpga->indiv_init_size,tmpga->GOP,tmpga->GLF,tmpga->EVE,tmpga->IND,tmpga->IVR,tmpga->GVI,tmpga->GTR,tmpga->GEI,_vals,size_vals);
+        tmpga->INDIVIDUALS[counter]=*newIndiv(tmpga->fill_selection,tmpga->indiv_init_size,tmpga->GOP,
+            tmpga->GLF,tmpga->EVE,tmpga->IND,tmpga->IVR,tmpga->GVI,tmpga->GTR,tmpga->GEI,_vals,size_vals);
         initPobRec(tmpga,_vals,size_vals,counter+1);
     }
     return;
@@ -103,19 +115,24 @@ void initPobRec(GenAlg<T,U>* tmpga,U (*_vals)[SIZE],size_t size_vals,int counter
 *   IV-> isVar; GVI-> getVarIndex; GEI-> getExpresionIndex; val-> values to model                              *
 ***************************************************************************************************************/
 template<typename T,typename U,std::size_t  SIZE>
-Indiv<T>* newIndiv(int FS,int D,T (*GO)(),T (*GL)(),U (*EE)(int,U,U),bool (*IN)(T),bool (*IV)(T),int (*GVI)(T),U (*GT)(T),int (*GEI)(T),U (*Vals)[SIZE],size_t sizeVal)
+Indiv<T>* newIndiv(GenAlg<T,U>* GA,U (*Vals)[SIZE],size_t sizeVal)
 {
     Indiv<T>* temp_indiv = new Indiv<T>();
-    temp_indiv->chrom = newNode(FS,D,GO(),GL,GO);
-    temp_indiv->fitness = cuadraticError(temp_indiv->chrom,EE,IN,IV,GVI,GT,GEI,Vals,sizeVal);
+    temp_indiv->chrom = newNode(GA->fill_selection,GA->indiv_init_size,GA->GOP(),GA->GLF,GA->GOP);
+    temp_indiv->fitness = cuadraticError(temp_indiv->chrom,GA->EVE,GA->IND,GA->IVR,GA->GVI,GA->GTR,GA->GEI,Vals,sizeVal);
     return temp_indiv;
+}
+
+template<typename T,typename U,std::size_t SIZE>
+void evalFitness(GenAlg<T,U>* GA,Indiv<T>* t_indiv,float (*values)[SIZE],size_t size_vals){
+    t_indiv->fitness = cuadraticError(t_indiv->chrom,GA->EVE,GA->IND,GA->IVR,GA->GVI,GA->GTR,GA->GEI,values,size_vals);
 }
 
 /************************************************************************************
 *   the function apply a kind of mutation to a individual with selection Option     *
 ************************************************************************************/
-template<typename T>
-void MutateIndiv(int option,Indiv<T>* someIndiv,bool (*IN)(),bool (*IV)(),T (*GL)(),T (*GO)())
+template<typename T,typename U>
+void MutateIndiv(GenAlg<T,U>* GA,Indiv<T>* someIndiv)
 {
     Indiv<T>* tempInd;
 }
@@ -123,29 +140,45 @@ void MutateIndiv(int option,Indiv<T>* someIndiv,bool (*IN)(),bool (*IV)(),T (*GL
 /****************************************************************************************
 *   the funcitons interchange the subtree of both individuals with selection Option     *
 ****************************************************************************************/
-template<typename T>
-void CrossIndivs(int Option,float porc,Indiv<T>* parentA,Indiv<T>* parentB,bool (*IN)())
+template<typename T,typename U,std::size_t SIZE>
+void CrossIndivs(GenAlg<T,U>* GA,Indiv<T>* parentA,Indiv<T>* parentB,float (*values)[SIZE],size_t size_vals)
 {
     Node<T>* subIndivA;//saves the direction of the B subtree
     Node<T>* subIndivB;//saves the direction of the A subtree 
-    int countOperandsA = nodeCounter(parentA,IN);
-    int countOperandsB = nodeCounter(parentB,IN);
+    int countOperandsA = nodeCounter(parentA,GA->IND);
+    int countOperandsB = nodeCounter(parentB,GA->IND);
     int Index_A=0;
     int Index_B=0;
-    switch (Option){
+    switch (GA->c_selection){
         case HALF_CROSS:// 50% of individual information will be interchanged 
             Index_A = (int)countOperandsA/2; Index_B = (int)countOperandsB/2; break;
         case PROP_CROSS://porcentage proportional cross, the value is from 0 to 1
-            Index_A = (int)countOperandsA*(porc); Index_B = (int)countOperandsB*(1-porc); break;    
+            Index_A = (int)countOperandsA*(GA->cross_proportion); Index_B = (int)countOperandsB*(1 - GA->cross_proportion); break;    
         case RAND_CROSS://aleatory index
             Index_A = rand()%countOperandsA; Index_B = rand()%countOperandsB; break;    
     }
     /*gets the indexed operand over the trees*/
-    getIndexedSubTree(Index_A,parentA->chrom,subIndivA,IN);
-    getIndexedSubTree(Index_B,parentB->chrom,subIndivB,IN);
+    getIndexedSubTree(Index_A,parentA->chrom,subIndivA,GA->IND);
+    getIndexedSubTree(Index_B,parentB->chrom,subIndivB,GA->IND);
     /* interchange the indexed operands*/
-    setIndexedSubTree(Index_A,parentA->chrom,subIndivB,IN);
-    setIndexedSubTree(Index_B,parentB->chrom,subIndivA,IN);
+    setIndexedSubTree(Index_A,parentA->chrom,subIndivB,GA->IND);
+    setIndexedSubTree(Index_B,parentB->chrom,subIndivA,GA->IND);
+    evalFitness(GA,parentA,values,size_vals);
+    evalFitness(GA,parentB,values,size_vals);
+}
+
+
+/*############################################################################
+##############################################################################
+###############     Funciones para el algoritmo genético    ##################
+##############################################################################
+############################################################################*/
+
+
+template<typename T,typename U,std::size_t POPSIZE>
+void SELECTION(GenAlg<T,U>* GA)
+{
+    Indiv<T>* TEMP_POP=new Indiv<T>[POPSIZE];
 
 }
 
