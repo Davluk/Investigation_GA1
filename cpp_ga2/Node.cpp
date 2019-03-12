@@ -143,7 +143,7 @@ float cuadraticError(Node<T> *_current_indiv,U (*exExp)(int,U,U),bool (*isNode)(
 *											*
 ********************************************/
 template<typename T>
-int nodeCounter(Node<T>* _root_node,bool (isNode)(T))
+int nodeCounter(Node<T>* _root_node,bool (*isNode)(T))
 {
 	int counter = 1;
 	if(_root_node->left!=NULL && isNode(_root_node->left->data)){ counter+= nodeCounter(_root_node->left,isNode); }
