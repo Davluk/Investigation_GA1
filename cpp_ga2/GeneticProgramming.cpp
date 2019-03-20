@@ -67,12 +67,13 @@ struct GenAlg{
     bool    (*IVR)(T);          //is a variable?
     int     (*GVI)(T);          //get variable index(the variables can be in disorder)
     int     (*GEI)(T);          //get expreison index(the expresions can be in disorder)
+    char    (*GCHR)(T);
     GenAlg(){}
 };
 
 template<typename T,typename U>
 GenAlg<T,U>* newGA(int fillS,int ms,int cs,int ss,int pobSiz,int indvSiz,float mutrt,float crossrt,float cross_prop,
- U (*eve)(int,U,U), U (*gtr)(T), T (*gop)(),T (*glf)(),bool (*ind)(T),bool (*ivr)(T),int (*gvi)(T),int (*gei)(T))
+ U (*eve)(int,U,U), U (*gtr)(T), T (*gop)(),T (*glf)(),bool (*ind)(T),bool (*ivr)(T),int (*gvi)(T),int (*gei)(T),char (*gchr)(T))
 {
 
     GenAlg<T,U>* tmpGA = new GenAlg<T,U>();
@@ -95,16 +96,19 @@ GenAlg<T,U>* newGA(int fillS,int ms,int cs,int ss,int pobSiz,int indvSiz,float m
     tmpGA->IVR = ivr;
     tmpGA->GVI = gvi;
     tmpGA->GEI = gei;
+    tmpGA->GCHR=gchr;
     return tmpGA;
 }
 
 template<typename T, typename U,std::size_t SIZE>
 void initPobRec(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t size_vals,int counter)
 {
-    printf("%d ",counter);
     if(counter==GA->poblation_size){return;}
     else{
+        //printf("{%d,",counter);
         GA->INDIVIDUALS[counter]=*newIndiv(GA,_vals,size_vals);
+        //printf("%0.4f}\n",GA->INDIVIDUALS[counter].fitness);
+        //if(GA->INDIVIDUALS[counter].fitness==0){ PrintPosOrder(GA->INDIVIDUALS[counter].chrom,GA->IND,GA->GCHR); }
         initPobRec(GA,_vals,size_vals,counter+1);
     }
     return;
@@ -181,14 +185,36 @@ void SELECTION(GenAlg<T,U>* GA)
 {
     Indiv<T>* TEMP_POP=new Indiv<T>[GA->poblation_size];
     float pob_fitness[GA->poblation_size];
-
+    float pob_max = 0.0f;
+    float random_roulette=0.0f;
+    int random_tournament = 0;
+    float total=0.0f;
+    
     for(int index =0;index<GA->poblation_size;index++)
-    { pob_fitness[index] = GA->INDIVIDUALS[index]->fitness; }
+    { pob_fitness[index] = GA->INDIVIDUALS[index].fitness; }
 
     switch(GA->s_selection)
     {
         case ROULT:
-
+        /*   se encesita ahcer que los fitnees se reflejen como maximos y positivos cuanto mas cercanos a cero sean: aun no corregido   */
+            for(int index=0;index<GA->poblation_size;index++)
+            { if(pob_max<pob_fitness[index]){ pob_max = pob_fitness[index]; } }
+            for(int index=0;index<GA->poblation_size;index++)
+            { pob_fitness[index]= (pob_max + 1 - pob_fitness[index]); }            
+            for(int index=0;index<GA->poblation_size;index++)
+            { total+=pob_fitness[index]; }
+            for(int index=0;index<GA->poblation_size;index++)
+            { pob_fitness[index]/=total; }
+            for(int index=0;index<GA->poblation_size;index++)
+            { if(index>0)pob_fitness[index]+=pob_fitness[index-1]; }
+            for(int index_ex=0;index_ex<GA->poblation_size;index_ex++)
+            {
+                random_roulette = ((float)rand()/((float)(RAND_MAX+1)))*GA->poblation_size;
+                for(int index=0;index<GA->poblation_size;index++)
+                {
+                    if((random_roulette-pob_fitness[index])<0){ TEMP_POP[index_ex]=GA->INDIVIDUALS[index];break; }
+                }
+            }
         break;
         case TOURN:
         break;
