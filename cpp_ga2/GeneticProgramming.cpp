@@ -176,10 +176,23 @@ void CrossIndivs(GenAlg<T,U>* GA,Indiv<T>* parentA,Indiv<T>* parentB,float (*val
 
 
 
-template<typename T,typename U,std::size_t POPSIZE>
+template<typename T,typename U>
 void SELECTION(GenAlg<T,U>* GA)
 {
-    Indiv<T>* TEMP_POP=new Indiv<T>[POPSIZE];
+    Indiv<T>* TEMP_POP=new Indiv<T>[GA->poblation_size];
+    float pob_fitness[GA->poblation_size];
+
+    for(int index =0;index<GA->poblation_size;index++)
+    { pob_fitness[index] = GA->INDIVIDUALS[index]->fitness; }
+
+    switch(GA->s_selection)
+    {
+        case ROULT:
+
+        break;
+        case TOURN:
+        break;
+    }
 
 }
 
