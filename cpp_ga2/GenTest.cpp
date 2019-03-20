@@ -42,7 +42,7 @@ mD GETO(){
 	return tempMD;
 }
 
-char GCR(mD _metadata){
+char GCHR(mD _metadata){
 	switch(_metadata.type)
 	{
 		case _op: 	return opRep [_metadata.data]; break; 
@@ -85,7 +85,7 @@ float EvEx(int selection,float a,float b)
 
 int main(int argc, char const *argv[])
 {
-	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,m_rate,c_rate,0.7f,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI);
+	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,m_rate,c_rate,0.7f,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI,GCHR);
 	initPobRec(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]),0);
 
 
