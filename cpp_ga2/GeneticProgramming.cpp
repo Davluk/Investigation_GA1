@@ -54,6 +54,7 @@ struct GenAlg{
     int   fill_selection;
     int   m_selection;
     int   c_selection;
+    int   s_selection;
     float mutation_rate;
     float crossover_rate;
     float cross_proportion;
@@ -98,14 +99,13 @@ GenAlg<T,U>* newGA(int fillS,int ms,int cs,int ss,int pobSiz,int indvSiz,float m
 }
 
 template<typename T, typename U,std::size_t SIZE>
-void initPobRec(GenAlg<T,U>* tmpga,U (*_vals)[SIZE],size_t size_vals,int counter)
+void initPobRec(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t size_vals,int counter)
 {
     printf("%d ",counter);
-    if(counter==tmpga->poblation_size){return;}
+    if(counter==GA->poblation_size){return;}
     else{
-        tmpga->INDIVIDUALS[counter]=*newIndiv(tmpga->fill_selection,tmpga->indiv_init_size,tmpga->GOP,
-            tmpga->GLF,tmpga->EVE,tmpga->IND,tmpga->IVR,tmpga->GVI,tmpga->GTR,tmpga->GEI,_vals,size_vals);
-        initPobRec(tmpga,_vals,size_vals,counter+1);
+        GA->INDIVIDUALS[counter]=*newIndiv(GA,_vals,size_vals);
+        initPobRec(GA,_vals,size_vals,counter+1);
     }
     return;
 }
@@ -173,6 +173,7 @@ void CrossIndivs(GenAlg<T,U>* GA,Indiv<T>* parentA,Indiv<T>* parentB,float (*val
 ###############     Funciones para el algoritmo genético    ##################
 ##############################################################################
 ############################################################################*/
+
 
 
 template<typename T,typename U,std::size_t POPSIZE>
