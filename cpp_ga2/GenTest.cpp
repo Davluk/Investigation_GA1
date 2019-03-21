@@ -1,4 +1,6 @@
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
 #include "GeneticProgramming.cpp"
 
 const int pop_size = 100;
@@ -6,7 +8,7 @@ const int max_depth = 2;
 const int fill_opt = HALF_HALF;
 const int m_opt = LEAF_MUT;
 const int c_opt = NO_MUT;
-const int s_opt = TOURN;
+const int s_opt = ROULT;
 const float m_rate = 0.05f;
 const float c_rate = 0.90f;
 
@@ -85,11 +87,15 @@ float EvEx(int selection,float a,float b)
 
 int main(int argc, char const *argv[])
 {
-	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,m_rate,c_rate,0.7f,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI);
+	//srand(time(NULL));
+	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,m_rate,c_rate,0.7f,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI,GCR);
+	printf("INIT POBLATION \n\n");
 	initPobRec(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]),0);
-
-
-
+	SELECTION(mygenalg);
+	//printPobStatus(mygenalg);
+	printf("#############################################\n#############################################\n");
+	printf("index:\t%d\t",46);PrintPosOrder(mygenalg->NEWINDIVIDUALS[46].chrom,mygenalg->IND,mygenalg->GCHR);printf("fitness: \t%6.4f\n",mygenalg->NEWINDIVIDUALS[46].fitness);
+	//printNewPobStatus(mygenalg);
 	std::cout<< "holamundo";
 	return 0;
 }
