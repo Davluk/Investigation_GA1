@@ -67,12 +67,13 @@ struct GenAlg{
     bool    (*IVR)(T);          //is a variable?
     int     (*GVI)(T);          //get variable index(the variables can be in disorder)
     int     (*GEI)(T);          //get expreison index(the expresions can be in disorder)
+    char    (*GCHR)(T);
     GenAlg(){}
 };
 
 template<typename T,typename U>
 GenAlg<T,U>* newGA(int fillS,int ms,int cs,int ss,int pobSiz,int indvSiz,float mutrt,float crossrt,float cross_prop,
- U (*eve)(int,U,U), U (*gtr)(T), T (*gop)(),T (*glf)(),bool (*ind)(T),bool (*ivr)(T),int (*gvi)(T),int (*gei)(T))
+ U (*eve)(int,U,U), U (*gtr)(T), T (*gop)(),T (*glf)(),bool (*ind)(T),bool (*ivr)(T),int (*gvi)(T),int (*gei)(T),char (*gchr)(T))
 {
 
     GenAlg<T,U>* tmpGA = new GenAlg<T,U>();
@@ -81,7 +82,7 @@ GenAlg<T,U>* newGA(int fillS,int ms,int cs,int ss,int pobSiz,int indvSiz,float m
     tmpGA->fill_selection = fillS;
     tmpGA->m_selection = ms;
     tmpGA->c_selection = cs;
-    tmpGA->s_selection = cs;
+    tmpGA->s_selection = ss;
     tmpGA->poblation_size = pobSiz;
     tmpGA->indiv_init_size = indvSiz;
     tmpGA->mutation_rate = mutrt;
@@ -95,16 +96,18 @@ GenAlg<T,U>* newGA(int fillS,int ms,int cs,int ss,int pobSiz,int indvSiz,float m
     tmpGA->IVR = ivr;
     tmpGA->GVI = gvi;
     tmpGA->GEI = gei;
+    tmpGA->GCHR = gchr;
     return tmpGA;
 }
 
 template<typename T, typename U,std::size_t SIZE>
 void initPobRec(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t size_vals,int counter)
 {
-    printf("%d ",counter);
+    //printf("%d ",counter);
     if(counter==GA->poblation_size){return;}
     else{
         GA->INDIVIDUALS[counter]=*newIndiv(GA,_vals,size_vals);
+        printf("index:\t%d\t",counter);PrintPosOrder(GA->INDIVIDUALS[counter].chrom,GA->IND,GA->GCHR);printf("fitness: \t%6.4f\n",GA->INDIVIDUALS[counter].fitness);
         initPobRec(GA,_vals,size_vals,counter+1);
     }
     return;
@@ -168,6 +171,31 @@ void CrossIndivs(GenAlg<T,U>* GA,Indiv<T>* parentA,Indiv<T>* parentB,float (*val
 }
 
 
+/*##############################################################################
+###############  Funciones para tomar informacion estadistica ##################
+##############################################################################*/
+template<typename T,typename U>
+void printPobStatus(GenAlg<T,U>* GA)
+{
+    for(int index = 0;index<GA->poblation_size;index++)
+    { 
+        printf("{\t%d\t,\t%6.4f\t}",index,GA->INDIVIDUALS[index].fitness);
+        if(index,GA->INDIVIDUALS[index].fitness==0)PrintPosOrder(GA->INDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
+        printf("\n");
+    }
+}
+
+template<typename T,typename U>
+void printNewPobStatus(GenAlg<T,U>* GA)
+{
+    for(int index = 0;index<GA->poblation_size;index++)
+    { 
+        printf("{\t%d\t,\t%6.4f\t}",index,GA->NEWINDIVIDUALS[index].fitness);
+        if(index,GA->NEWINDIVIDUALS[index].fitness==0)PrintPosOrder(GA->NEWINDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
+        printf("\n");
+    }
+}
+
 /*############################################################################
 ##############################################################################
 ###############     Funciones para el algoritmo genético    ##################
@@ -179,21 +207,39 @@ void CrossIndivs(GenAlg<T,U>* GA,Indiv<T>* parentA,Indiv<T>* parentB,float (*val
 template<typename T,typename U>
 void SELECTION(GenAlg<T,U>* GA)
 {
-    Indiv<T>* TEMP_POP=new Indiv<T>[GA->poblation_size];
-    float pob_fitness[GA->poblation_size];
+    float pob_fitness[GA->poblation_size]; 
+    float temp_random=0.0f;
+    float total_fit = 0.0f;
+    float max_fit = 0.0f;
 
     for(int index =0;index<GA->poblation_size;index++)
-    { pob_fitness[index] = GA->INDIVIDUALS[index]->fitness; }
+    { pob_fitness[index] = GA->INDIVIDUALS[index].fitness; }
 
     switch(GA->s_selection)
     {
         case ROULT:
+            for(int index=0;index<GA->poblation_size;index++)
+            { if(pob_fitness[index]>max_fit)max_fit=pob_fitness[index]; }
+            for(int index=0;index<GA->poblation_size;index++)
+            { pob_fitness[index]= max_fit + 1 - pob_fitness[index]; total_fit+=pob_fitness[index]; }
+            for(int index=0;index<GA->poblation_size;index++)
+            { pob_fitness[index]=pob_fitness[index]*GA->poblation_size/total_fit; if(index>0){ pob_fitness[index]=pob_fitness[index]+pob_fitness[index-1]; } }
+            for(int ext_index=0;ext_index<GA->poblation_size;ext_index++)
+            {
+                temp_random = ((float)rand()/(float)(RAND_MAX+1))*GA->poblation_size;
+                for(int index=0;index<GA->poblation_size;index++)
+                { 
+                    GA->NEWINDIVIDUALS[ext_index]=GA->INDIVIDUALS[index];
+                    if(pob_fitness[index]>temp_random){ break; }  
+                }
+                printf("index:\t%d\t",ext_index);/*PrintPosOrder(GA->NEWINDIVIDUALS[ext_index].chrom,GA->IND,GA->GCHR);*/printf("fitness: \t%6.4f\n",GA->NEWINDIVIDUALS[ext_index].fitness);
+            }
 
         break;
         case TOURN:
+
         break;
     }
-
 }
 
 #endif
