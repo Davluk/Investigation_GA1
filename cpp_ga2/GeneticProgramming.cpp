@@ -1,4 +1,5 @@
 #include "Node.cpp"
+#include <vector>
 #ifndef GEN_ALG
 #define GEN_ALG
 
@@ -74,8 +75,8 @@ struct GenAlg{
 template<typename T,typename U>
 GenAlg<T,U>* newGA(int fillS,int ms,int cs,int ss,int pobSiz,int indvSiz,float mutrt,float crossrt,float cross_prop,
  U (*eve)(int,U,U), U (*gtr)(T), T (*gop)(),T (*glf)(),bool (*ind)(T),bool (*ivr)(T),int (*gvi)(T),int (*gei)(T),char (*gchr)(T))
-{
-
+{   
+    if(ss==TOURN && pobSiz%2!=0){printf("SI SELECCIONAS >>SELECCION POR TORNEO<< DEBES TENER UN NUMERO PAR DE INDIVIDUOS\n");exit(EXIT_FAILURE);}
     GenAlg<T,U>* tmpGA = new GenAlg<T,U>();
     tmpGA->INDIVIDUALS=new Indiv<T>[pobSiz];
     tmpGA->NEWINDIVIDUALS=new Indiv<T>[pobSiz];
@@ -107,7 +108,7 @@ void initPobRec(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t size_vals,int counter)
     if(counter==GA->poblation_size){return;}
     else{
         GA->INDIVIDUALS[counter]=*newIndiv(GA,_vals,size_vals);
-        printf("index:\t%d\t",counter);PrintPosOrder(GA->INDIVIDUALS[counter].chrom,GA->IND,GA->GCHR);printf("fitness: \t%6.4f\n",GA->INDIVIDUALS[counter].fitness);
+        //printf("index:\t%d\t",counter);PrintPosOrder(GA->INDIVIDUALS[counter].chrom,GA->IND,GA->GCHR);printf("fitness: \t%6.4f\n",GA->INDIVIDUALS[counter].fitness);
         initPobRec(GA,_vals,size_vals,counter+1);
     }
     return;
@@ -180,7 +181,7 @@ void printPobStatus(GenAlg<T,U>* GA)
     for(int index = 0;index<GA->poblation_size;index++)
     { 
         printf("{\t%d\t,\t%6.4f\t}",index,GA->INDIVIDUALS[index].fitness);
-        if(index,GA->INDIVIDUALS[index].fitness==0)PrintPosOrder(GA->INDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
+        if(index,GA->INDIVIDUALS[index].fitness<200.0f)PrintPosOrder(GA->INDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
         printf("\n");
     }
 }
@@ -191,7 +192,7 @@ void printNewPobStatus(GenAlg<T,U>* GA)
     for(int index = 0;index<GA->poblation_size;index++)
     { 
         printf("{\t%d\t,\t%6.4f\t}",index,GA->NEWINDIVIDUALS[index].fitness);
-        if(index,GA->NEWINDIVIDUALS[index].fitness==0)PrintPosOrder(GA->NEWINDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
+        if(index,GA->NEWINDIVIDUALS[index].fitness<200.0f)PrintPosOrder(GA->NEWINDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
         printf("\n");
     }
 }
@@ -202,13 +203,13 @@ void printNewPobStatus(GenAlg<T,U>* GA)
 ##############################################################################
 ############################################################################*/
 
-
+int tournament(int ind1, float fit1, int ind2, float fit2)
+{ return (fit1<fit2)?(ind1):(ind2); }
 
 template<typename T,typename U>
 void SELECTION(GenAlg<T,U>* GA)
 {
     float pob_fitness[GA->poblation_size]; 
-    float temp_random=0.0f;
     float total_fit = 0.0f;
     float max_fit = 0.0f;
 
@@ -226,20 +227,45 @@ void SELECTION(GenAlg<T,U>* GA)
             { pob_fitness[index]=pob_fitness[index]*GA->poblation_size/total_fit; if(index>0){ pob_fitness[index]=pob_fitness[index]+pob_fitness[index-1]; } }
             for(int ext_index=0;ext_index<GA->poblation_size;ext_index++)
             {
-                temp_random = ((float)rand()/(float)(RAND_MAX+1))*GA->poblation_size;
+                float temp_random = ((float)rand()/(float)(RAND_MAX+1))*GA->poblation_size;
                 for(int index=0;index<GA->poblation_size;index++)
                 { 
                     GA->NEWINDIVIDUALS[ext_index]=GA->INDIVIDUALS[index];
-                    if(pob_fitness[index]>temp_random){ break; }  
+                    if(pob_fitness[index]>temp_random && index>0){ GA->NEWINDIVIDUALS[ext_index]=GA->INDIVIDUALS[index-1]; break; }  
                 }
-                printf("index:\t%d\t",ext_index);/*PrintPosOrder(GA->NEWINDIVIDUALS[ext_index].chrom,GA->IND,GA->GCHR);*/printf("fitness: \t%6.4f\n",GA->NEWINDIVIDUALS[ext_index].fitness);
+                printf("index:\t%d\t",ext_index);PrintPosOrder(GA->NEWINDIVIDUALS[ext_index].chrom,GA->IND,GA->GCHR);printf("\tfitness: \t%6.4f\n",GA->NEWINDIVIDUALS[ext_index].fitness);
             }
-
         break;
         case TOURN:
+            int   ind_1 = 0;
+            int   ind_2 = 0; 
+            int counter = 0;
+            std::vector<int> indexes; 
 
+            for(int index=0;index<GA->poblation_size;index++)indexes.push_back(index);
+            while(indexes.size()>0){
+                ind_1= rand()%indexes.size(); int temp_ind1=indexes[ind_1]; indexes.erase(indexes.begin()+ind_1);
+                ind_2= rand()%indexes.size(); int temp_ind2=indexes[ind_2]; indexes.erase(indexes.begin()+ind_2);
+                GA->NEWINDIVIDUALS[counter++]=GA->INDIVIDUALS[tournament(temp_ind1,GA->INDIVIDUALS[temp_ind1].fitness,temp_ind2,GA->INDIVIDUALS[temp_ind2].fitness)];
+
+            }
+            for(int index=0;index<GA->poblation_size;index++)indexes.push_back(index);
+            while(indexes.size()>0){
+                ind_1= rand()%indexes.size(); int temp_ind1=indexes[ind_1]; indexes.erase(indexes.begin()+ind_1);
+                ind_2= rand()%indexes.size(); int temp_ind2=indexes[ind_2]; indexes.erase(indexes.begin()+ind_2);
+                GA->NEWINDIVIDUALS[counter++]=GA->INDIVIDUALS[tournament(temp_ind1,GA->INDIVIDUALS[temp_ind1].fitness,temp_ind2,GA->INDIVIDUALS[temp_ind2].fitness)];
+
+            }
         break;
     }
+    GA->INDIVIDUALS=GA->NEWINDIVIDUALS;
+    GA->NEWINDIVIDUALS = new Indiv<T>[GA->poblation_size];
+}
+
+template<typename T, typename U>
+void CROSSOVER(GenAlg<T,U>* GA)
+{
+    
 }
 
 #endif
