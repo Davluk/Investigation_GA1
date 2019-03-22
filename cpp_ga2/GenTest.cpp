@@ -8,7 +8,7 @@ const int max_depth = 2;
 const int fill_opt = HALF_HALF;
 const int m_opt = LEAF_MUT;
 const int c_opt = NO_MUT;
-const int s_opt = ROULT;
+const int s_opt = TOURN;
 const float m_rate = 0.05f;
 const float c_rate = 0.90f;
 
@@ -17,7 +17,10 @@ const int OP_SIZ  =4;
 const int VAR_SIZ =2;
 
 enum nodeTypes{_op,_var,_term};
-float _values[][VAR_SIZ]={{0.0f,0.0f},{1.0f,1.0f},{2.0f,4.0f},{3.0f,9.0f},{4.0f,16.0f},{5.0f,25.0f}};
+float _values[][VAR_SIZ]={{0.0f,0.0f},{1.0f,1.0f},{2.0f,4.0f},{3.0f,9.0f},{4.0f,16.0f},{5.0f,25.0f},
+						   {6.0f,36.0f},{7.0f,49.0f},{8.0f,64.0f},{9.0f,81.0f},{10.0f,100.0f},
+						   {11.0f,121.0f},{12.0f,144.0f},{13.0f,169.0f},{14.0f,196.0f},{15.0f,225.0f},
+						   {16.0f,256.0f},{17.0f,289.0f},{18.0f,324.0f},{19.0f,361.0f},{20.0f,400.0f}};
 char terRep[TER_SIZ]= {'1','2','3','4','5','6','7','8','9'};
 char opRep[OP_SIZ] = {'+','-','*','/'};
 char varRep[VAR_SIZ]= {'x','y'};//the last element is the F(x)
@@ -91,11 +94,11 @@ int main(int argc, char const *argv[])
 	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,m_rate,c_rate,0.7f,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI,GCR);
 	printf("INIT POBLATION \n\n");
 	initPobRec(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]),0);
+	printPobStatus(mygenalg);
 	SELECTION(mygenalg);
-	//printPobStatus(mygenalg);
-	printf("#############################################\n#############################################\n");
-	printf("index:\t%d\t",46);PrintPosOrder(mygenalg->NEWINDIVIDUALS[46].chrom,mygenalg->IND,mygenalg->GCHR);printf("fitness: \t%6.4f\n",mygenalg->NEWINDIVIDUALS[46].fitness);
-	//printNewPobStatus(mygenalg);
+	printf("#############################################\n####################POB#########################\n");
+	printPobStatus(mygenalg);
+
 	std::cout<< "holamundo";
 	return 0;
 }
