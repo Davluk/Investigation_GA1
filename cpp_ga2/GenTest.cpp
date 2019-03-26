@@ -3,12 +3,13 @@
 #include <time.h>
 #include "GeneticProgramming.cpp"
 
+const int max_g = 100;
 const int pop_size = 100;
 const int max_depth = 3;
 const int fill_opt = HALF_HALF;
-const int m_opt = LEAF_MUT;
+const int m_opt = BIT_MUT;
 const int c_opt = RAND_CROSS;
-const int s_opt = TOURN;
+const int s_opt = ROULT;
 const float m_rate = 0.05f;
 const float c_rate = 0.90f;
 
@@ -16,7 +17,7 @@ const int TER_SIZ =9;
 const int OP_SIZ  =4;
 const int VAR_SIZ =2;
 
-enum nodeTypes{_op,_var,_term};
+enum nodeTypes{_var,_op,_term};
 float _values[][VAR_SIZ]={{0.0f,0.0f},{1.0f,1.0f},{2.0f,4.0f},{3.0f,9.0f},{4.0f,16.0f},{5.0f,25.0f},
 						   {6.0f,36.0f},{7.0f,49.0f},{8.0f,64.0f},{9.0f,81.0f},{10.0f,100.0f},
 						   {11.0f,121.0f},{12.0f,144.0f},{13.0f,169.0f},{14.0f,196.0f},{15.0f,225.0f},
@@ -90,16 +91,22 @@ float EvEx(int selection,float a,float b)
 
 int main(int argc, char const *argv[])
 {
-	srand(time(NULL));
-	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,m_rate,c_rate,0.7f,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI,GCR);
+	//srand(time(NULL));
+	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,max_g,m_rate,c_rate,0.7f,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI,GCR);
 	printf("INIT POBLATION \n\n");
 	initPobRec(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]),0);
-
 	printPobStatus(mygenalg);
-	CrossIndivs(mygenalg,&mygenalg->INDIVIDUALS[0],&mygenalg->INDIVIDUALS[1],_values,(size_t)(sizeof(_values)/(sizeof(_values[0]))));
-	SELECTION(mygenalg);
-	printf("#############################################\n####################POB#########################\n");
-	CROSSOVER(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
+
+	GENETICPROSSES(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
+
+	//printf("#############################################\n####################POB#########################\n");
+	//SELECTION(mygenalg);
+	//printPobStatus(mygenalg);
+	//printf("#############################################\n####################POB#########################\n");
+	//CROSSOVER(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
+	//printPobStatus(mygenalg);
+	//printf("#############################################\n####################POB#########################\n");
+	//MUTATION(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
 	printPobStatus(mygenalg);
 
 	std::cout<< "holamundo";
