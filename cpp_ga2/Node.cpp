@@ -182,8 +182,8 @@ U getData(Node<T>* _temp_node,U (*Interpreter)(T)){ return Interpreter(_temp_nod
 
 /********************************************************
 * 														*
-*	go over the tree and returns the indexed subtree 	*		
-*														*	
+*	go over the tree and returns the indexed subtree 	*
+*														*
 ********************************************************/
 template <typename T>
 int getIndexedSubTree(int index,Node<T>* _root_node,Node<T>* OutNode,bool (*isNode)(T))
