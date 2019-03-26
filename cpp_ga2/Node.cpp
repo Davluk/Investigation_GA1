@@ -151,6 +151,21 @@ int nodeCounter(Node<T>* _root_node,bool (*isNode)(T))
 	return counter;
 }
 
+
+/********************************************
+*											*
+*	count the number of nodes in the tree 	*
+*											*
+********************************************/
+template<typename T>
+int totalNodeCounter(Node<T>* _root_node)
+{
+	int counter = 1;
+	if(_root_node->left!=NULL){ counter+= totalNodeCounter(_root_node->left); }
+	if(_root_node->rigth!=NULL){ counter+= totalNodeCounter(_root_node->rigth); }
+	return counter;
+}
+
 /************************************************************************************
 *																					*
 *	gets the char representation of the function coded in the tree in pos order 	*
@@ -199,6 +214,27 @@ int getIndexedSubTree(int index,Node<T>* _root_node,Node<T>* OutNode,bool (*isNo
 	return deep;
 }
 
+
+/********************************************************
+* 														*
+*	go over the tree and returns the indexed node 	 	*
+*														*
+********************************************************/
+
+template<typename T>
+int getIndexedNode(int index,Node<T>* _root_node,Node<T>* OutNode)
+{
+	int deep = index;
+	if(index==0){ *OutNode = *_root_node; }
+	else if(index>=1){
+		if(_root_node->left!=NULL)
+		{ deep = getIndexedNode(deep-1,_root_node->left,OutNode); }
+		if(_root_node->rigth!=NULL)
+		{ deep = getIndexedNode(deep-1,_root_node->rigth,OutNode);}
+	}
+	return deep;
+}
+
 /********************************************************************************
 * 																				*
 *	go over the tree and substitute the subtree passed in the indexed subtree 	*
@@ -214,6 +250,25 @@ int setIndexedSubTree(int index,Node<T>* _root_node,Node<T>* InNode,bool (*isNod
 		{ deep = setIndexedSubTree(deep-1,_root_node->left,InNode,isNode); }
 		if(_root_node->rigth!=NULL && isNode(_root_node->rigth->data))
 		{ deep = setIndexedSubTree(deep-1,_root_node->rigth,InNode,isNode);}
+	}
+	return deep;
+}
+
+/********************************************************************************
+* 																				*
+*	go over the tree and substitute the new Node passed in the indexed node 	*
+* 																				*
+********************************************************************************/
+template<typename T>
+int setIndexedNode(int index,Node<T>* _root_node,Node<T>* InNode)
+{
+	int deep = index;
+	if(index==0){ *_root_node=*InNode; }
+	else if(index>=1){
+		if(_root_node->left!=NULL)
+		{ deep = setIndexedNode(deep-1,_root_node->left,InNode); }
+		if(_root_node->rigth!=NULL)
+		{ deep = setIndexedNode(deep-1,_root_node->rigth,InNode);}
 	}
 	return deep;
 }
