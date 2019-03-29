@@ -62,17 +62,17 @@ Node<T>* newNode(int _fill_selection_,int depth,T _data,T (*getLeaf)(),T (*getOp
 			break;
 			case RAND_FILL:
 				coin = rand()%4;
-				if(coin>2){ temp_node->left=new Node<T>(getLeaf());}
+				if(coin>=2){ temp_node->left=new Node<T>(getLeaf());}
 				else{ temp_node->left = newNode(RAND_FILL,depth-1,getOp(),getLeaf,getOp); }
 				coin = rand()%4;
-				if(coin>2){ temp_node->rigth=new Node<T>(getLeaf()); }
+				if(coin>=2){ temp_node->rigth=new Node<T>(getLeaf()); }
 				else{ temp_node->rigth = newNode(RAND_FILL,depth-1,getOp(),getLeaf,getOp); }
 			break;
 			case HALF_HALF: 
 				_def_Case_:
 				temp_node->left  = newNode(FULL_FILL,depth-1,getOp(),getLeaf,getOp);
 				coin = rand()%4;
-				if(coin>2){ temp_node->rigth=new Node<T>(getLeaf()); }
+				if(coin>=2){ temp_node->rigth=new Node<T>(getLeaf()); }
 				else{ temp_node->rigth = newNode(RAND_FILL,depth-1,getOp(),getLeaf,getOp); }
 			break;
 			default:
@@ -125,14 +125,15 @@ U evalFunction(Node<T>* _root_node,U (*executeExpresion)(int,U,U),bool (*isNode)
 *																    *
 ********************************************************************/
 template<typename T,typename U,std::size_t SIZE>
-float cuadraticError(Node<T> *_current_indiv,U (*exExp)(int,U,U),bool (*isNode)(T),bool (*isVar)(T),int (*getVrIn)(T),U (*getTer)(T),int (*getExpInd)(T),U (*_list_of_values)[SIZE],size_t rows)
+U cuadraticError(Node<T> *_current_indiv,U (*exExp)(int,U,U),bool (*isNode)(T),bool (*isVar)(T),int (*getVrIn)(T),U (*getTer)(T),int (*getExpInd)(T),U (*_list_of_values)[SIZE],size_t rows)
 {
-	float error =0.0f;
+	U error = (U)0;
 	for(int index = 0;index<(int)rows;index++)
 	{
 		//always the F(x) must be the last element
-		error+= pow(_list_of_values[index][SIZE-1]-evalFunction(_current_indiv,exExp,isNode,isVar,getVrIn,getTer,getExpInd,_list_of_values[index]),2)/rows;
+		error+= pow(_list_of_values[index][SIZE-1]-evalFunction(_current_indiv,exExp,isNode,isVar,getVrIn,getTer,getExpInd,_list_of_values[index]),2);
 	}
+	error/=(U)rows;
 	return error;
 }
 
@@ -148,6 +149,21 @@ int nodeCounter(Node<T>* _root_node,bool (*isNode)(T))
 	int counter = 1;
 	if(_root_node->left!=NULL && isNode(_root_node->left->data)){ counter+= nodeCounter(_root_node->left,isNode); }
 	if(_root_node->rigth!=NULL && isNode(_root_node->rigth->data)){ counter+= nodeCounter(_root_node->rigth,isNode); }
+	return counter;
+}
+
+
+/********************************************
+*											*
+*	count the number of nodes in the tree 	*
+*											*
+********************************************/
+template<typename T>
+int totalNodeCounter(Node<T>* _root_node)
+{
+	int counter = 1;
+	if(_root_node->left!=NULL){ counter+= totalNodeCounter(_root_node->left); }
+	if(_root_node->rigth!=NULL){ counter+= totalNodeCounter(_root_node->rigth); }
 	return counter;
 }
 
@@ -182,8 +198,8 @@ U getData(Node<T>* _temp_node,U (*Interpreter)(T)){ return Interpreter(_temp_nod
 
 /********************************************************
 * 														*
-*	go over the tree and returns the indexed subtree 	*		
-*														*	
+*	go over the tree and returns the indexed subtree 	*
+*														*
 ********************************************************/
 template <typename T>
 int getIndexedSubTree(int index,Node<T>* _root_node,Node<T>* OutNode,bool (*isNode)(T))
@@ -195,6 +211,27 @@ int getIndexedSubTree(int index,Node<T>* _root_node,Node<T>* OutNode,bool (*isNo
 		{ deep = getIndexedSubTree(deep-1,_root_node->left,OutNode,isNode); }
 		if(_root_node->rigth!=NULL && isNode(_root_node->rigth->data))
 		{ deep = getIndexedSubTree(deep-1,_root_node->rigth,OutNode,isNode);}
+	}
+	return deep;
+}
+
+
+/********************************************************
+* 														*
+*	go over the tree and returns the indexed node 	 	*
+*														*
+********************************************************/
+
+template<typename T>
+int getIndexedNode(int index,Node<T>* _root_node,Node<T>* OutNode)
+{
+	int deep = index;
+	if(index==0){ *OutNode = *_root_node; }
+	else if(index>=1){
+		if(_root_node->left!=NULL)
+		{ deep = getIndexedNode(deep-1,_root_node->left,OutNode); }
+		if(_root_node->rigth!=NULL)
+		{ deep = getIndexedNode(deep-1,_root_node->rigth,OutNode);}
 	}
 	return deep;
 }
@@ -214,6 +251,25 @@ int setIndexedSubTree(int index,Node<T>* _root_node,Node<T>* InNode,bool (*isNod
 		{ deep = setIndexedSubTree(deep-1,_root_node->left,InNode,isNode); }
 		if(_root_node->rigth!=NULL && isNode(_root_node->rigth->data))
 		{ deep = setIndexedSubTree(deep-1,_root_node->rigth,InNode,isNode);}
+	}
+	return deep;
+}
+
+/********************************************************************************
+* 																				*
+*	go over the tree and substitute the new Node passed in the indexed node 	*
+* 																				*
+********************************************************************************/
+template<typename T>
+int setIndexedNode(int index,Node<T>* _root_node,Node<T>* InNode)
+{
+	int deep = index;
+	if(index==0){ *_root_node=*InNode; }
+	else if(index>=1){
+		if(_root_node->left!=NULL)
+		{ deep = setIndexedNode(deep-1,_root_node->left,InNode); }
+		if(_root_node->rigth!=NULL)
+		{ deep = setIndexedNode(deep-1,_root_node->rigth,InNode);}
 	}
 	return deep;
 }

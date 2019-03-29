@@ -1,21 +1,30 @@
 #include <iostream>
+#include <stdlib.h>
+#include <time.h>
 #include "GeneticProgramming.cpp"
 
-const int pop_size = 100;
-const int max_depth = 2;
-const int fill_opt = HALF_HALF;
-const int m_opt = LEAF_MUT;
-const int c_opt = NO_MUT;
+const int max_g = 10000;
+const int pop_size = 1000;
+const int max_depth = 5;
+
+const double m_rate = 0.5f;
+const double c_rate = 0.90f;
+const double cross_prop = 0.7f;
+
+const int fill_opt = RAND_FILL;
+const int m_opt = BIT_MUT;
+const int c_opt = RAND_CROSS;
 const int s_opt = TOURN;
-const float m_rate = 0.05f;
-const float c_rate = 0.90f;
 
 const int TER_SIZ =9;
 const int OP_SIZ  =4;
 const int VAR_SIZ =2;
 
-enum nodeTypes{_op,_var,_term};
-float _values[][VAR_SIZ]={{0.0f,0.0f},{1.0f,1.0f},{2.0f,4.0f},{3.0f,9.0f},{4.0f,16.0f},{5.0f,25.0f}};
+enum nodeTypes{_var,_op,_term};
+double _values[20][VAR_SIZ];
+double func(double x){return 9*x*x*x + 2*x*x + x + 4;}
+//*/
+
 char terRep[TER_SIZ]= {'1','2','3','4','5','6','7','8','9'};
 char opRep[OP_SIZ] = {'+','-','*','/'};
 char varRep[VAR_SIZ]= {'x','y'};//the last element is the F(x)
@@ -29,7 +38,7 @@ mD GETL()
 {
 	mD tempMD;
 	int coin = rand()%4;
-	if(coin>2)
+	if(coin>=2)
 	{ tempMD.data = rand()%sizeof(terRep)/sizeof(terRep[0]); tempMD.type=_term; }
 	else
 	{ tempMD.data = rand()%((sizeof(varRep)/sizeof(varRep[0]))-1); tempMD.type=_var; }
@@ -58,18 +67,18 @@ bool IV(mD _metadata){ return _metadata.type==_var; }
 
 int   GVI(mD _metadata){return _metadata.data;}
 int   GEI(mD _metadata){return _metadata.data;}
-float GT(mD _metadata){return (float)_metadata.data+1;}
+double GT(mD _metadata){return (double)_metadata.data+1;}
 
 // para cuando la funcion es un arbol de desiciones | clasificador
 int INTERPRETER(mD _metadata){return _metadata.data;}
 
 /* conjunto de funciones que evaluan la expresion */
-float ADD(float a,float b){return a+b;}
-float SUB(float a,float b){return a-b;}
-float MUL(float a,float b){return a*b;}
-float DIV(float a,float b){return (b==0)?(a/0.000001f):(a/b);}
+double ADD(double a,double b){return a+b;}
+double SUB(double a,double b){return a-b;}
+double MUL(double a,double b){return a*b;}
+double DIV(double a,double b){return (b==0)?(a/0.000000000001f):(a/b);}
 
-float EvEx(int selection,float a,float b)
+double EvEx(int selection,double a,double b)
 {
 	switch(selection){
 		case 0: return ADD(a,b);
@@ -85,10 +94,25 @@ float EvEx(int selection,float a,float b)
 
 int main(int argc, char const *argv[])
 {
-	GenAlg<mD,float>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,m_rate,c_rate,0.7f,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI,GCHR);
+	srand(time(NULL));
+	for(int index=0;index<20;index++)
+	{
+		_values[index][0]=(double)(index/(double)1);
+		_values[index][1]=func(_values[index][0]);
+	}
+	GenAlg<mD,double>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,max_g,m_rate,c_rate,cross_prop,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI,GCR);
+	
+	printf("INIT POBLATION \n\n");
 	initPobRec(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]),0);
 
+	printf("#############################################\n####################POB#########################\n");
+	printBestIndiv(mygenalg);
 
+	GENETICPROSSES(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]));
+
+	printf("#############################################\n####################POB#########################\n");
+	printBestIndiv(mygenalg);
+	//printPobStatus(mygenalg);
 
 	std::cout<< "holamundo";
 	return 0;
