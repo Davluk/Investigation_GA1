@@ -62,17 +62,17 @@ Node<T>* newNode(int _fill_selection_,int depth,T _data,T (*getLeaf)(),T (*getOp
 			break;
 			case RAND_FILL:
 				coin = rand()%4;
-				if(coin>2){ temp_node->left=new Node<T>(getLeaf());}
+				if(coin>=2){ temp_node->left=new Node<T>(getLeaf());}
 				else{ temp_node->left = newNode(RAND_FILL,depth-1,getOp(),getLeaf,getOp); }
 				coin = rand()%4;
-				if(coin>2){ temp_node->rigth=new Node<T>(getLeaf()); }
+				if(coin>=2){ temp_node->rigth=new Node<T>(getLeaf()); }
 				else{ temp_node->rigth = newNode(RAND_FILL,depth-1,getOp(),getLeaf,getOp); }
 			break;
 			case HALF_HALF: 
 				_def_Case_:
 				temp_node->left  = newNode(FULL_FILL,depth-1,getOp(),getLeaf,getOp);
 				coin = rand()%4;
-				if(coin>2){ temp_node->rigth=new Node<T>(getLeaf()); }
+				if(coin>=2){ temp_node->rigth=new Node<T>(getLeaf()); }
 				else{ temp_node->rigth = newNode(RAND_FILL,depth-1,getOp(),getLeaf,getOp); }
 			break;
 			default:
@@ -125,14 +125,15 @@ U evalFunction(Node<T>* _root_node,U (*executeExpresion)(int,U,U),bool (*isNode)
 *																    *
 ********************************************************************/
 template<typename T,typename U,std::size_t SIZE>
-float cuadraticError(Node<T> *_current_indiv,U (*exExp)(int,U,U),bool (*isNode)(T),bool (*isVar)(T),int (*getVrIn)(T),U (*getTer)(T),int (*getExpInd)(T),U (*_list_of_values)[SIZE],size_t rows)
+U cuadraticError(Node<T> *_current_indiv,U (*exExp)(int,U,U),bool (*isNode)(T),bool (*isVar)(T),int (*getVrIn)(T),U (*getTer)(T),int (*getExpInd)(T),U (*_list_of_values)[SIZE],size_t rows)
 {
-	float error =0.0f;
+	U error = (U)0;
 	for(int index = 0;index<(int)rows;index++)
 	{
 		//always the F(x) must be the last element
-		error+= pow(_list_of_values[index][SIZE-1]-evalFunction(_current_indiv,exExp,isNode,isVar,getVrIn,getTer,getExpInd,_list_of_values[index]),2)/rows;
+		error+= pow(_list_of_values[index][SIZE-1]-evalFunction(_current_indiv,exExp,isNode,isVar,getVrIn,getTer,getExpInd,_list_of_values[index]),2);
 	}
+	error/=(U)rows;
 	return error;
 }
 
