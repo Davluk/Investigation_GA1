@@ -37,11 +37,11 @@
 /*********************************************
 *   structure for tratment with individuals  *
 *********************************************/
-template<typename T>
+template<typename T,typename U>
 struct Indiv
 {
     Node<T>* chrom;
-    float fitness; 
+    U fitness; 
     Indiv(){}   
 };
 
@@ -50,12 +50,8 @@ struct Indiv
 ********************************************/  
 template<typename T,typename U>
 struct GenAlg{
-    Node<T>* subIndivA;//saves the direction of the B subtree
-    Node<T>* subIndivB;//saves the direction of the A subtree 
-    int Index_A;
-    int Index_B;
-    Indiv<T>* INDIVIDUALS;
-    Indiv<T>* NEWINDIVIDUALS;
+    Indiv<T,U>* INDIVIDUALS;
+    Indiv<T,U>* NEWINDIVIDUALS;
     int   max_generations;
     int   poblation_size;
     int   indiv_init_size;
@@ -64,9 +60,9 @@ struct GenAlg{
     int   m_selection;
     int   c_selection;
     int   s_selection;
-    float mutation_rate;
-    float crossover_rate;
-    float cross_proportion;
+    U mutation_rate;
+    U crossover_rate;
+    U cross_proportion;
     //functions releated with the treatment of the tree individuals
     U       (*EVE)(int,U,U);    // evaluate expresion
     U       (*GTR)(T);          //get terminal
@@ -86,12 +82,8 @@ GenAlg<T,U>* newGA(int fillS,int ms,int cs,int ss,int pobSiz,int indvSiz,int max
 {   
     if(ss==TOURN && pobSiz%2!=0){printf("SI SELECCIONAS >>SELECCION POR TORNEO<< DEBES TENER UN NUMERO PAR DE INDIVIDUOS\n");exit(EXIT_FAILURE);}
     GenAlg<T,U>* tmpGA = new GenAlg<T,U>();
-    tmpGA->subIndivA=new Node<T>();
-    tmpGA->subIndivB=new Node<T>();
-    tmpGA->Index_A=0.0f;
-    tmpGA->Index_B=0.0f;
-    tmpGA->INDIVIDUALS=new Indiv<T>[pobSiz];
-    tmpGA->NEWINDIVIDUALS=new Indiv<T>[pobSiz];
+    tmpGA->INDIVIDUALS=new Indiv<T,U>[pobSiz];
+    tmpGA->NEWINDIVIDUALS=new Indiv<T,U>[pobSiz];
     tmpGA->max_generations = max_g;
     tmpGA->fill_selection = fillS;
     tmpGA->m_selection = ms;
@@ -130,100 +122,18 @@ void initPobRec(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t size_vals,int counter)
 *   IV-> isVar; GVI-> getVarIndex; GEI-> getExpresionIndex; val-> values to model                              *
 ***************************************************************************************************************/
 template<typename T,typename U,std::size_t  SIZE>
-Indiv<T>* newIndiv(GenAlg<T,U>* GA,U (*Vals)[SIZE],size_t sizeVal)
+Indiv<T,U>* newIndiv(GenAlg<T,U>* GA,U (*Vals)[SIZE],size_t sizeVal)
 {
-    Indiv<T>* temp_indiv = new Indiv<T>();
+    Indiv<T,U>* temp_indiv = new Indiv<T,U>();
     temp_indiv->chrom = newNode(GA->fill_selection,GA->indiv_init_size,GA->GOP(),GA->GLF,GA->GOP);
     temp_indiv->fitness = cuadraticError(temp_indiv->chrom,GA->EVE,GA->IND,GA->IVR,GA->GVI,GA->GTR,GA->GEI,Vals,sizeVal);
     return temp_indiv;
 }
 
 template<typename T,typename U,std::size_t SIZE>
-void evalFitness(GenAlg<T,U>* GA,Indiv<T>* t_indiv,float (*values)[SIZE],size_t size_vals){
+void evalFitness(GenAlg<T,U>* GA,Indiv<T,U>* t_indiv,U (*values)[SIZE],size_t size_vals){
     t_indiv->fitness = cuadraticError(t_indiv->chrom,GA->EVE,GA->IND,GA->IVR,GA->GVI,GA->GTR,GA->GEI,values,size_vals);
 }
-
-/************************************************************************************
-*   the function apply a kind of mutation to a individual with selection Option     *
-************************************************************************************/
-template<typename T,typename U,std::size_t SIZE>
-void MutateIndiv(GenAlg<T,U>* GA,Indiv<T>* indiv_mut,U (*_vals)[SIZE],size_t size_vals)
-{
-    int total_nodes = totalNodeCounter(indiv_mut->chrom);
-    int subt_total_nodes=0.0f;
-    int nodes = nodeCounter(indiv_mut->chrom,GA->IND);
-    int temp_rand=0;
-    Node<T>* temp_node = new Node<T>();
-    switch(GA->m_selection)
-    {
-        case BIT_MUT:
-            temp_rand= rand()%total_nodes;
-            getIndexedNode(temp_rand,indiv_mut->chrom,temp_node);
-            if(GA->IND(temp_node->data))
-            { temp_node->data = GA->GOP(); }
-            else
-            { temp_node->data = GA->GLF(); }
-            setIndexedNode(temp_rand,indiv_mut->chrom,temp_node);
-            delete temp_node;
-        break;
-        case OPER_MUT:
-            temp_rand = rand()%nodes;
-            //printf("OPERMUT\n");
-            getIndexedSubTree(temp_rand,indiv_mut->chrom,temp_node,GA->IND);
-            //printf("index = %d\n",temp_rand);PrintPosOrder(temp_node,GA->IND,GA->GCHR);
-            temp_node->data = GA->GOP();
-            setIndexedSubTree(temp_rand,indiv_mut->chrom,temp_node,GA->IND);
-            //printf("\nindex = %d\n",temp_rand);PrintPosOrder(temp_node,GA->IND,GA->GCHR);printf("\n");
-            delete temp_node;
-        break;
-        case SUBT_MUT:
-            temp_rand = rand()%nodes;
-            getIndexedSubTree(temp_rand,indiv_mut->chrom,temp_node,GA->IND);
-            temp_node = newNode(GA->fill_selection,(int)log2f(totalNodeCounter(temp_node)),GA->GOP(),GA->GLF,GA->GOP);
-            setIndexedSubTree(temp_rand,indiv_mut->chrom,temp_node,GA->IND);
-            delete temp_node;
-        break;
-        case NO_MUT: return ;
-        break;
-    }     
-    evalFitness(GA,indiv_mut,_vals,size_vals);
-}
-
-/****************************************************************************************
-*   the funcitons interchange the subtree of both individuals with selection Option     *
-****************************************************************************************/
-template<typename T,typename U,std::size_t SIZE>
-void CrossIndivs(GenAlg<T,U>* GA,Indiv<T>* parentA,Indiv<T>* parentB,float (*values)[SIZE],size_t size_vals)
-{
-    int countOperandsA = nodeCounter(parentA->chrom,GA->IND);
-    int countOperandsB = nodeCounter(parentB->chrom,GA->IND);
-    switch (GA->c_selection){
-        case HALF_CROSS:// 50% of individual information will be interchanged 
-            GA->Index_A = (int)countOperandsA/2; GA->Index_B = (int)countOperandsB/2; break;
-        case PROP_CROSS://porcentage proportional cross, the value is from 0 to 1
-            GA->Index_A = (int)countOperandsA*(GA->cross_proportion); GA->Index_B = (int)countOperandsB*(1 - GA->cross_proportion); break;    
-        case RAND_CROSS://aleatory index
-            GA->Index_A = rand()%countOperandsA; GA->Index_B = rand()%countOperandsB; break;
-    }
-    /*gets the indexed operand over the trees*/
-    getIndexedSubTree(GA->Index_A,parentA->chrom,GA->subIndivA,GA->IND);
-    getIndexedSubTree(GA->Index_B,parentB->chrom,GA->subIndivB,GA->IND);
-    /* interchange the indexed operands*/
-    setIndexedSubTree(GA->Index_A,parentA->chrom,GA->subIndivB,GA->IND);
-    setIndexedSubTree(GA->Index_B,parentB->chrom,GA->subIndivA,GA->IND);
-    evalFitness(GA,parentA,values,size_vals);
-    evalFitness(GA,parentB,values,size_vals);
-}
-
-template<typename T,typename U,std::size_t SIZE>
-void get_back_Cross(GenAlg<T,U>* GA,Indiv<T>* parentA,Indiv<T>* parentB,float (*_values)[SIZE],size_t size_vals)
-{
-    setIndexedSubTree(GA->Index_A,parentA->chrom,GA->subIndivA,GA->IND);
-    setIndexedSubTree(GA->Index_B,parentB->chrom,GA->subIndivB,GA->IND);
-    evalFitness(GA,parentA,_values,size_vals);
-    evalFitness(GA,parentB,_values,size_vals);
-}
-
 
 /*##############################################################################
 ###############  Funciones para tomar informacion estadistica ##################
@@ -234,7 +144,7 @@ void printPobStatus(GenAlg<T,U>* GA)
     for(int index = 0;index<GA->poblation_size;index++)
     { 
         printf("{\t%d\t,\t%6.4f\t}",index,GA->INDIVIDUALS[index].fitness);
-        if(index,GA->INDIVIDUALS[index].fitness<200.0f)PrintPosOrder(GA->INDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
+        if(index,GA->INDIVIDUALS[index].fitness<(U)10*GA->poblation_size)PrintPosOrder(GA->INDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
         printf("\n");
     }
 }
@@ -245,7 +155,7 @@ void printNewPobStatus(GenAlg<T,U>* GA)
     for(int index = 0;index<GA->poblation_size;index++)
     { 
         printf("{\t%d\t,\t%6.4f\t}",index,GA->NEWINDIVIDUALS[index].fitness);
-        if(index,GA->NEWINDIVIDUALS[index].fitness<200.0f)PrintPosOrder(GA->NEWINDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
+        if(index,GA->NEWINDIVIDUALS[index].fitness<(U)10*GA->poblation_size)PrintPosOrder(GA->NEWINDIVIDUALS[index].chrom,GA->IND,GA->GCHR); 
         printf("\n");
     }
 }
@@ -271,7 +181,7 @@ void SELECTION(GenAlg<T,U>* GA)
 
     switch(GA->s_selection)
     {
-        case ROULT:
+        case ROULT://problemas
             for(int index=0;index<GA->poblation_size;index++)
             { if(pob_fitness[index]>max_fit)max_fit=pob_fitness[index]; }
             for(int index=0;index<GA->poblation_size;index++)
@@ -280,13 +190,12 @@ void SELECTION(GenAlg<T,U>* GA)
             { pob_fitness[index]=pob_fitness[index]*GA->poblation_size/total_fit; if(index>0){ pob_fitness[index]=pob_fitness[index]+pob_fitness[index-1]; } }
             for(int ext_index=0;ext_index<GA->poblation_size;ext_index++)
             {
-                float temp_random = ((float)rand()/(float)(RAND_MAX+1))*GA->poblation_size;
+                float temp_random = ((float)(rand()%1000000)/(float)1000000)*GA->poblation_size;
                 for(int index=0;index<GA->poblation_size;index++)
                 { 
                     GA->NEWINDIVIDUALS[ext_index]=GA->INDIVIDUALS[index];
                     if(pob_fitness[index]>temp_random && index>0){ GA->NEWINDIVIDUALS[ext_index]=GA->INDIVIDUALS[index-1]; break; }  
                 }
-                //printf("index:\t%d\t",ext_index);PrintPosOrder(GA->NEWINDIVIDUALS[ext_index].chrom,GA->IND,GA->GCHR);printf("\tfitness: \t%6.4f\n",GA->NEWINDIVIDUALS[ext_index].fitness);
             }
         break;
         case TOURN:
@@ -312,43 +221,132 @@ void SELECTION(GenAlg<T,U>* GA)
         break;
     }
     GA->INDIVIDUALS=GA->NEWINDIVIDUALS;
-    GA->NEWINDIVIDUALS = new Indiv<T>[GA->poblation_size];
+    GA->NEWINDIVIDUALS = new Indiv<T,U>[GA->poblation_size];
 }
 
 template<typename T, typename U,std::size_t SIZE>
-void CROSSOVER(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t _val_size)
+void CROSSOVER(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t val_size)
 {
     std::vector<int> parent_indexes;
+    int indexA=0;
+    int indexB=0;
+    int countOperandsA = 0;//nodeCounter(parentA->chrom,GA->IND);
+    int countOperandsB = 0;//nodeCounter(parentB->chrom,GA->IND);
     for(int index = 0;index<GA->poblation_size;index++)
     {
-        float temp_random = (float)rand()/(float)(RAND_MAX+1);
+        float temp_random = (float)(rand()%1000000)/((float)1000000);
         if(temp_random<=GA->crossover_rate){ parent_indexes.push_back(index); }
     }
-    if(parent_indexes.size()%2!=0){ parent_indexes.push_back(rand()%(GA->poblation_size-1)); }
+    if(parent_indexes.size()%2!=0){ parent_indexes.pop_back(); }
     for(int index = 0;index<parent_indexes.size();index+=2)
     {
-        int parent_1 = parent_indexes[index];
-        int parent_2 = parent_indexes[index+1];
-        float parent_a_fit = GA->INDIVIDUALS[parent_1].fitness;
-        float parent_b_fit = GA->INDIVIDUALS[parent_2].fitness;
-        //if(index%10==0)printf("|"); if(index%5==0)printf(".");
-        CrossIndivs(GA,&GA->INDIVIDUALS[parent_1],&GA->INDIVIDUALS[parent_2],_vals,_val_size);
-        float son1_fit = GA->INDIVIDUALS[parent_1].fitness;
-        float son2_fit = GA->INDIVIDUALS[parent_2].fitness;
-        if(son1_fit>parent_a_fit && son1_fit>parent_b_fit && son2_fit>parent_a_fit && son2_fit>parent_b_fit)
+        Node<T>* subtreeA=new Node<T>;
+        Node<T>* subtreeB=new Node<T>;
+        int parent_A = parent_indexes[index];
+        int parent_B = parent_indexes[index+1];
+        if(GA->INDIVIDUALS[parent_A].fitness>(U)100000*GA->poblation_size && GA->INDIVIDUALS[parent_B].fitness>(U)100000*GA->poblation_size) 
         {
-            get_back_Cross(GA,&GA->INDIVIDUALS[parent_1],&GA->INDIVIDUALS[parent_2],_vals,_val_size);
+            float parent_A_fit = GA->INDIVIDUALS[parent_A].fitness;
+            float parent_B_fit = GA->INDIVIDUALS[parent_B].fitness;
+            int countOperandsA = nodeCounter(GA->INDIVIDUALS[parent_A].chrom,GA->IND);
+            int countOperandsB = nodeCounter(GA->INDIVIDUALS[parent_B].chrom,GA->IND);
+
+            switch (GA->c_selection){
+            case HALF_CROSS:// 50% of individual information will be interchanged 
+                indexA = (int)countOperandsA/2; indexB = (int)countOperandsB/2; break;
+            case PROP_CROSS://porcentage proportional cross, the value is from 0 to 1
+                indexA = (int)countOperandsA*(GA->cross_proportion); indexB = (int)countOperandsB*(GA->cross_proportion); break;    
+            case RAND_CROSS://aleatory index
+                float rand_n = (float)(rand()%1000000)/(float)1000000;
+                indexA = (int)countOperandsA*rand_n; indexB = (int)countOperandsB*rand_n; break;
+            }
+
+            /*gets the indexed operand over the trees*/
+            getIndexedSubTree(indexA,GA->INDIVIDUALS[parent_A].chrom,subtreeA,GA->IND);
+            getIndexedSubTree(indexB,GA->INDIVIDUALS[parent_B].chrom,subtreeB,GA->IND);
+            /* interchange the indexed operands*/
+            setIndexedSubTree(indexA,GA->INDIVIDUALS[parent_A].chrom,subtreeB,GA->IND);
+            setIndexedSubTree(indexB,GA->INDIVIDUALS[parent_B].chrom,subtreeA,GA->IND);
+            evalFitness(GA,&GA->INDIVIDUALS[parent_A],_vals,val_size);
+            evalFitness(GA,&GA->INDIVIDUALS[parent_B],_vals,val_size);
+            if(GA->INDIVIDUALS[parent_A].fitness>parent_A_fit && GA->INDIVIDUALS[parent_B].fitness>parent_B_fit)
+            {   /*UNDID THE ACTION*/
+                setIndexedSubTree(indexA,GA->INDIVIDUALS[parent_A].chrom,subtreeA,GA->IND);
+                setIndexedSubTree(indexB,GA->INDIVIDUALS[parent_B].chrom,subtreeB,GA->IND);
+            }
         }
+        delete subtreeA;
+        delete subtreeB;
+    }
+}
+
+template<typename T,typename U>
+void MUTATION(GenAlg<T,U>* GA)
+{
+    int total_nodes = 0;//totalNodeCounter(indiv_mut->chrom);
+    int subt_total_nodes=0.0f;
+    int nodes = 0;// nodeCounter(indiv_mut->chrom,GA->IND);
+    int temp_rand=0;
+    Node<T>* temp_node = new Node<T>();
+    for(int index=0;index<GA->poblation_size;index++)
+    {
+        float temp_random = (float)(rand()%1000000)/((float)1000000);
+        if(temp_random<=GA->mutation_rate&&GA->INDIVIDUALS[index].fitness>(U)10*GA->poblation_size){ 
+            //MutateIndiv(GA,&GA->INDIVIDUALS[index]); 
+            total_nodes = totalNodeCounter(GA->INDIVIDUALS[index].chrom);
+            nodes = nodeCounter(GA->INDIVIDUALS[index].chrom,GA->IND);
+            switch(GA->m_selection)
+            {
+                case BIT_MUT:
+                    temp_rand= rand()%total_nodes;
+                    getIndexedNode(temp_rand,GA->INDIVIDUALS[index].chrom,temp_node);
+                    if(GA->IND(temp_node->data))
+                    { temp_node->data = GA->GOP(); }
+                    else
+                    { temp_node->data = GA->GLF(); }
+                    setIndexedNode(temp_rand,GA->INDIVIDUALS[index].chrom,temp_node);
+                    
+                break;
+                case OPER_MUT:
+                    temp_rand = rand()%nodes;
+                    getIndexedSubTree(temp_rand,GA->INDIVIDUALS[index].chrom,temp_node,GA->IND);
+                    temp_node->data = GA->GOP();
+                    setIndexedSubTree(temp_rand,GA->INDIVIDUALS[index].chrom,temp_node,GA->IND);
+                    
+                break;
+                case SUBT_MUT:
+                    temp_rand = rand()%nodes;
+                    getIndexedSubTree(temp_rand,GA->INDIVIDUALS[index].chrom,temp_node,GA->IND);
+                    temp_node = newNode(GA->fill_selection,(int)log2f(totalNodeCounter(temp_node)),GA->GOP(),GA->GLF,GA->GOP);
+                    setIndexedSubTree(temp_rand,GA->INDIVIDUALS[index].chrom,temp_node,GA->IND);
+                    
+                break;
+                case NO_MUT: return ;
+                break;
+            } 
+        }
+    }
+
+    
+}
+template<typename T,typename U,std::size_t SIZE>
+void evalPoblation(GenAlg<T,U>* GA,U (*vals)[SIZE],size_t val_size)
+{
+    for(int index = 0;index<GA->poblation_size;index++)
+    {
+        evalFitness(GA,&GA->INDIVIDUALS[index],vals,val_size);
     }
 }
 
 template<typename T,typename U,std::size_t SIZE>
-void MUTATION(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t _val_size)
+void KILLWORSTINDIVS(GenAlg<T,U>* GA,U (*vals)[SIZE],size_t val_size)
 {
     for(int index=0;index<GA->poblation_size;index++)
     {
-        float temp_random = (float)rand()/(float)(RAND_MAX+1);
-        if(temp_random<GA->mutation_rate){ MutateIndiv(GA,&GA->INDIVIDUALS[index],_vals,_val_size); }
+        if(GA->INDIVIDUALS[index].fitness>(U)100000000*GA->poblation_size)
+        {
+            GA->INDIVIDUALS[index]=*newIndiv(GA,vals,val_size);
+        }
     }
 }
 
@@ -357,12 +355,29 @@ void GENETICPROSSES(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t _val_size)
 {
     for(int index = 0;index<GA->max_generations;index++)
     {
-        printf("|gen: %02d|: ",index);
-        printf("select:");SELECTION(GA);
-        printf("crosso:");CROSSOVER(GA,_vals,_val_size);   printf("\t");
-        //printf("mutati:");MUTATION(GA,_vals,_val_size);    
-        printf("\n");
+        KILLWORSTINDIVS(GA,_vals,_val_size);
+        SELECTION(GA);
+        CROSSOVER(GA,_vals,_val_size);
+        MUTATION(GA);
+        evalPoblation(GA,_vals,_val_size);
     }
 }
+
+
+
+template<typename T,typename U>
+void printBestIndiv(GenAlg<T,U>* GA)
+{
+   Indiv<T,U>* best_indiv=new Indiv<T,U>(); 
+   best_indiv->fitness=1/0.000000000000000000000000000000000000000000001f;
+   for(int index=0;index<GA->poblation_size;index++)
+   {
+        if(best_indiv->fitness>GA->INDIVIDUALS[index].fitness){ *best_indiv = GA->INDIVIDUALS[index]; } 
+   }
+   printf("fitness: %f\n",best_indiv->fitness);PrintPosOrder(best_indiv->chrom,GA->IND,GA->GCHR);printf("\n");
+   delete best_indiv;
+}
+
+
 
 #endif
