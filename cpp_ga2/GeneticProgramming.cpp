@@ -230,8 +230,6 @@ void CROSSOVER(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t val_size)
     std::vector<int> parent_indexes;
     int indexA=0;
     int indexB=0;
-    int countOperandsA = 0;//nodeCounter(parentA->chrom,GA->IND);
-    int countOperandsB = 0;//nodeCounter(parentB->chrom,GA->IND);
     for(int index = 0;index<GA->poblation_size;index++)
     {
         float temp_random = (float)(rand()%1000000)/((float)1000000);
