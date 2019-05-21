@@ -3,9 +3,9 @@
 #include <time.h>
 #include "GeneticProgramming.cpp"
 
-const int max_g = 10000;
+const int max_g = 1000;
 const int pop_size = 1000;
-const int max_depth = 5;
+const int max_depth = 6;
 
 const double m_rate = 0.5f;
 const double c_rate = 0.90f;
@@ -22,7 +22,8 @@ const int VAR_SIZ =2;
 
 enum nodeTypes{_var,_op,_term};
 double _values[20][VAR_SIZ];
-double func(double x){return 9*x*x*x + 2*x*x + x + 4;}
+
+double func(double x){return 9*x*x*x + 2*x*x + 30*x + 4;}
 //*/
 
 char terRep[TER_SIZ]= {'1','2','3','4','5','6','7','8','9'};
@@ -51,7 +52,7 @@ mD GETO(){
 	return tempMD;
 }
 
-char GCR(mD _metadata){
+char GCHR(mD _metadata){
 	switch(_metadata.type)
 	{
 		case _op: 	return opRep [_metadata.data]; break; 
@@ -100,7 +101,7 @@ int main(int argc, char const *argv[])
 		_values[index][0]=(double)(index/(double)1);
 		_values[index][1]=func(_values[index][0]);
 	}
-	GenAlg<mD,double>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,max_g,m_rate,c_rate,cross_prop,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI,GCR);
+	GenAlg<mD,double>* mygenalg = newGA(fill_opt,m_opt,c_opt,s_opt,pop_size,max_depth,max_g,m_rate,c_rate,cross_prop,EvEx,GT,GETO,GETL,IN,IV,GVI,GEI,GCHR);
 	
 	printf("INIT POBLATION \n\n");
 	initPobRec(mygenalg,_values,(size_t)sizeof(_values)/sizeof(_values[0]),0);

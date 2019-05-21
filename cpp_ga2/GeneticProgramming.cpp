@@ -111,7 +111,10 @@ void initPobRec(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t size_vals,int counter)
 {
     if(counter==GA->poblation_size){return;}
     else{
+        //printf("{%d,",counter);
         GA->INDIVIDUALS[counter]=*newIndiv(GA,_vals,size_vals);
+        //printf("%0.4f}\n",GA->INDIVIDUALS[counter].fitness);
+        //if(GA->INDIVIDUALS[counter].fitness==0){ PrintPosOrder(GA->INDIVIDUALS[counter].chrom,GA->IND,GA->GCHR); }
         initPobRec(GA,_vals,size_vals,counter+1);
     }
     return;
@@ -242,7 +245,7 @@ void CROSSOVER(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t val_size)
         Node<T>* subtreeB=new Node<T>;
         int parent_A = parent_indexes[index];
         int parent_B = parent_indexes[index+1];
-        if(GA->INDIVIDUALS[parent_A].fitness>(U)100000*GA->poblation_size && GA->INDIVIDUALS[parent_B].fitness>(U)100000*GA->poblation_size) 
+        if(GA->INDIVIDUALS[parent_A].fitness>(U)1000*GA->poblation_size && GA->INDIVIDUALS[parent_B].fitness>(U)1000*GA->poblation_size) 
         {
             float parent_A_fit = GA->INDIVIDUALS[parent_A].fitness;
             float parent_B_fit = GA->INDIVIDUALS[parent_B].fitness;
@@ -251,12 +254,12 @@ void CROSSOVER(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t val_size)
 
             switch (GA->c_selection){
             case HALF_CROSS:// 50% of individual information will be interchanged 
-                indexA = (int)countOperandsA/2; indexB = (int)countOperandsB/2; break;
+                indexA = (int)floor(countOperandsA/2); indexB = (int)floor(countOperandsB/2); break;
             case PROP_CROSS://porcentage proportional cross, the value is from 0 to 1
-                indexA = (int)countOperandsA*(GA->cross_proportion); indexB = (int)countOperandsB*(GA->cross_proportion); break;    
+                indexA = (int)floor(countOperandsA*(GA->cross_proportion)); indexB = (int)floor(countOperandsB*(GA->cross_proportion)); break;    
             case RAND_CROSS://aleatory index
                 float rand_n = (float)(rand()%1000000)/(float)1000000;
-                indexA = (int)countOperandsA*rand_n; indexB = (int)countOperandsB*rand_n; break;
+                indexA = (int)floor(countOperandsA*rand_n); indexB = (int)floor(countOperandsB*rand_n); break;
             }
 
             /*gets the indexed operand over the trees*/
@@ -282,7 +285,7 @@ template<typename T,typename U>
 void MUTATION(GenAlg<T,U>* GA)
 {
     int total_nodes = 0;//totalNodeCounter(indiv_mut->chrom);
-    int subt_total_nodes=0.0f;
+    int subt_total_nodes=0;
     int nodes = 0;// nodeCounter(indiv_mut->chrom,GA->IND);
     int temp_rand=0;
     Node<T>* temp_node = new Node<T>();
@@ -341,7 +344,7 @@ void KILLWORSTINDIVS(GenAlg<T,U>* GA,U (*vals)[SIZE],size_t val_size)
 {
     for(int index=0;index<GA->poblation_size;index++)
     {
-        if(GA->INDIVIDUALS[index].fitness>(U)100000000*GA->poblation_size)
+        if(GA->INDIVIDUALS[index].fitness>(U)1000000*GA->poblation_size)
         {
             GA->INDIVIDUALS[index]=*newIndiv(GA,vals,val_size);
         }
@@ -350,15 +353,21 @@ void KILLWORSTINDIVS(GenAlg<T,U>* GA,U (*vals)[SIZE],size_t val_size)
 
 template<typename T,typename U, std::size_t SIZE>
 void GENETICPROSSES(GenAlg<T,U>* GA,U (*_vals)[SIZE],size_t _val_size)
-{
+{   
+    float advantage=0.0f;
+    int adv_counter = 0;
     for(int index = 0;index<GA->max_generations;index++)
     {
+        advantage = 100*(1.0f-((float)GA->max_generations-(float)index)/(float)GA->max_generations);
+        if((advantage-(float)adv_counter)>1.0f){printf("#");adv_counter++;if(adv_counter%5==0){printf(".");}}
         KILLWORSTINDIVS(GA,_vals,_val_size);
         SELECTION(GA);
         CROSSOVER(GA,_vals,_val_size);
         MUTATION(GA);
         evalPoblation(GA,_vals,_val_size);
+
     }
+    printf("COMPlETE!!\n");
 }
 
 
