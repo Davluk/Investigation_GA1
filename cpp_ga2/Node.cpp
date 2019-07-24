@@ -3,6 +3,7 @@
 #include<math.h>
 #include<iostream>
 #include<string>
+#include<vector>
 
 #ifndef NODE_CPP
 #define NODE_CPP
@@ -15,7 +16,7 @@
 
 #define FULL_FILL 0
 #define RAND_FILL 1
-#define HALF_HALF 2
+#define HALF_FILL 2
 
 /*********************************
 *				  				 *
@@ -86,7 +87,7 @@ Node<T>* newNode(int _fill_selection_,int depth,T _data,bool (*is_binary)(T),T (
 					else{ temp_node->unique = newNode(RAND_FILL,depth-1,getOp(),is_binary,getLeaf,getOp); }
 				}
 			break;
-			case HALF_HALF: 
+			case HALF_FILL: 
 				_def_Case_:
 				if(is_binary(temp_node->data))
 				{
@@ -96,7 +97,7 @@ Node<T>* newNode(int _fill_selection_,int depth,T _data,bool (*is_binary)(T),T (
 					else{ temp_node->rigth = newNode(RAND_FILL,depth-1,getOp(),is_binary,getLeaf,getOp); }
 				}else
 				{
-					temp_node->unique = newNode(HALF_HALF,depth-1,getOp(),is_binary,getLeaf,getOp);
+					temp_node->unique = newNode(HALF_FILL,depth-1,getOp(),is_binary,getLeaf,getOp);
 				}
 			break;
 			default:
@@ -156,22 +157,22 @@ U evalFunction(Node<T>* _root_node,U (*executeBinExpresion)(int,U,U),U (*execute
 	}
 }
 
-
 /********************************************************************
 *																	*
 *	the algorithm use the cuadratic error as a meassure of fitness	*
 *																    *
 ********************************************************************/
 template<typename T,typename U>
-U cuadraticError(Node<T> *_current_indiv,U (*exBExp)(int,U,U),U (*exUExp)(int,U),bool (*isNode)(T),bool (*isBin)(T),bool (*isVar)(T),int (*getVrIn)(T),U (*getTer)(T),int (*getExpInd)(T),U** _list_of_values,int VARIABLE_SIZE,size_t rows)
+U cuadraticError(Node<T> *_current_indiv,U (*exBExp)(int,U,U),U (*exUExp)(int,U),bool (*isNode)(T),bool (*isBin)(T),bool (*isVar)(T),int (*getVrIn)(T),U (*getTer)(T),int (*getExpInd)(T),std::vector<U*> _list_of_values,int rows,int VARIABLE_SIZE)
 {
 	U error = (U)0;
-	for(int index = 0;index<(int)rows;index++)
+	for(int index = 0;index<rows;index++)
 	{
 		//always the F(x) must be the last element
-		error+= pow(_list_of_values[index][VARIABLE_SIZE-1]-evalFunction(_current_indiv,exBExp,exUExp,isNode,isBin,isVar,getVrIn,getTer,getExpInd,_list_of_values[index]),2);
+		U temp_var = pow(_list_of_values[index][VARIABLE_SIZE-1]-evalFunction(_current_indiv,exBExp,exUExp,isNode,isBin,isVar,getVrIn,getTer,getExpInd,_list_of_values[index]),2);
+		if(!isnan(temp_var)){ error+=temp_var; }else{ return 1/0.0000000000000000000000000000000000000000000000000000000000000000000000001; }
 	}
-	error = sqrt( error/(U)rows );
+	error = sqrt(error);
 	return error;
 }
 
@@ -222,8 +223,9 @@ int totalNodeCounter(Node<T>* _root_node,bool (*is_binary)(T))
 *	gets the char representation of the function coded in the tree in pos order 	*
 *																					*
 ************************************************************************************/
+/*
 template<typename T>
-void PrintPosOrder(Node<T>* _root_node,bool (*isNode)(T),bool (*is_binary)(T),std::basic_string<char> (*getCharRep)(T))
+void PrintTree(Node<T>* _root_node,bool (*isNode)(T),bool (*is_binary)(T),std::basic_string<char> (*getCharRep)(T))
 {
 	if(is_binary(_root_node->data))
 	{
@@ -231,13 +233,13 @@ void PrintPosOrder(Node<T>* _root_node,bool (*isNode)(T),bool (*is_binary)(T),st
 		if(_root_node->left!=NULL)
 		{	
 			if(isNode(_root_node->left->data))
-			{ PrintPosOrder(_root_node->left,isNode,is_binary,getCharRep); }
+			{ PrintTree(_root_node->left,isNode,is_binary,getCharRep); }
 			else { std::cout<<getCharRep(_root_node->left->data)<<" "; }
 		} 
 		if(_root_node->rigth!=NULL)
 		{	
 			if(isNode(_root_node->rigth->data))
-			{ PrintPosOrder(_root_node->rigth,isNode,is_binary,getCharRep); }
+			{ PrintTree(_root_node->rigth,isNode,is_binary,getCharRep); }
 			else { std::cout<<getCharRep(_root_node->rigth->data); }
 		} 
 		std::cout<<" )";
@@ -247,13 +249,45 @@ void PrintPosOrder(Node<T>* _root_node,bool (*isNode)(T),bool (*is_binary)(T),st
 		if(_root_node->unique!=NULL)
 		{	
 			if(isNode(_root_node->unique->data))
-			{ PrintPosOrder(_root_node->unique,isNode,is_binary,getCharRep); }
+			{ PrintTree(_root_node->unique,isNode,is_binary,getCharRep); }
 			else { std::cout<<getCharRep(_root_node->unique->data); }
 		}
 		std::cout<<" )";
 	}
 }
-
+*/
+template<typename T>
+void PrintTree(Node<T>* _root_node,bool (*isNode)(T),bool (*is_binary)(T),std::basic_string<char> (*getCharRep)(T))
+{
+	if(is_binary(_root_node->data))
+	{
+		std::cout<<"( ";
+		if(_root_node->left!=NULL)
+		{	
+			if(isNode(_root_node->left->data))
+			{ PrintTree(_root_node->left,isNode,is_binary,getCharRep); }
+			else { std::cout<<getCharRep(_root_node->left->data)<<" "; }
+		} 
+		std::cout<<getCharRep(_root_node->data)<<" ";
+		if(_root_node->rigth!=NULL)
+		{	
+			if(isNode(_root_node->rigth->data))
+			{ PrintTree(_root_node->rigth,isNode,is_binary,getCharRep); }
+			else { std::cout<<getCharRep(_root_node->rigth->data); }
+		} 
+		std::cout<<" )";
+	}else
+	{
+		std::cout<<getCharRep(_root_node->data)<<"( ";
+		if(_root_node->unique!=NULL)
+		{	
+			if(isNode(_root_node->unique->data))
+			{ PrintTree(_root_node->unique,isNode,is_binary,getCharRep); }
+			else { std::cout<<getCharRep(_root_node->unique->data); }
+		}
+		std::cout<<" )";
+	}
+}
 
 /********************************************************
 * 														*
@@ -297,9 +331,9 @@ int getIndexedNode(int index,Node<T>* _root_node,Node<T>* OutNode,bool (*is_bina
 		if(is_binary(_root_node->data))
 		{
 			if(_root_node->left!=NULL)
-			{ deep = getIndexedNode(deep-1,_root_node->left,OutNode); }
+			{ deep = getIndexedNode(deep-1,_root_node->left,OutNode,is_binary); }
 			if(_root_node->rigth!=NULL)
-			{ deep = getIndexedNode(deep-1,_root_node->rigth,OutNode);}
+			{ deep = getIndexedNode(deep-1,_root_node->rigth,OutNode,is_binary);}
 		}else
 		{
 			if(_root_node->unique=NULL)
@@ -349,13 +383,13 @@ int setIndexedNode(int index,Node<T>* _root_node,Node<T>* InNode,bool (*is_binar
 		if(is_binary(_root_node->data))
 		{
 			if(_root_node->left!=NULL)
-			{ deep = setIndexedNode(deep-1,_root_node->left,InNode); }
+			{ deep = setIndexedNode(deep-1,_root_node->left,InNode,is_binary); }
 			if(_root_node->rigth!=NULL)
-			{ deep = setIndexedNode(deep-1,_root_node->rigth,InNode);}
+			{ deep = setIndexedNode(deep-1,_root_node->rigth,InNode,is_binary);}
 		}else
 		{
 			if(_root_node->unique!=NULL)
-			{ deep = setIndexedNode(deep-1,_root_node->unique,InNode);}
+			{ deep = setIndexedNode(deep-1,_root_node->unique,InNode,is_binary);}
 		}
 	}
 	return deep;
