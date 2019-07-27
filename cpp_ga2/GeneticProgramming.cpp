@@ -258,7 +258,7 @@ void CROSSOVER(GenAlg<T,U>* GA,int var_size,std::vector<U*> _vals,int _vals_size
     {
         int parent_A = parent_indexes[index];
         int parent_B = parent_indexes[index+1];
-        if(GA->INDIVIDUALS[parent_A].fitness>0 && GA->INDIVIDUALS[index].fitness>0) 
+        if(GA->INDIVIDUALS[parent_A].fitness>0 && GA->INDIVIDUALS[parent_B].fitness>0) 
         {
             float parent_A_fit = GA->INDIVIDUALS[parent_A].fitness;
             float parent_B_fit = GA->INDIVIDUALS[parent_B].fitness;
