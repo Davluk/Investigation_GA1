@@ -167,7 +167,7 @@ def getIST(index,rootNode,outNode,is_nd,is_bin):
 					deep=getIST(deep-1,rootNode.unique,outNode,is_nd,is_bin)
 	return deep
 
-def getIN(index,rootNode,outNode,is_nd,is_bin):
+def getIN(index,rootNode,outNode,is_bin):
 	deep = index
 	if(index==0):
 		outNode=rootNode
@@ -175,12 +175,12 @@ def getIN(index,rootNode,outNode,is_nd,is_bin):
 		if(index>=1):
 			if(is_bin(rootNode.data)):
 				if(rootNode.left!=None):
-					deep=getIN(deep-1,rootNode.left,outNode,is_nd,is_bin)
+					deep=getIN(deep-1,rootNode.left,outNode,is_bin)
 				if(rootNode.right!=None):
-					deep=getIN(deep-1,rootNode.right,outNode,is_nd,is_bin)
+					deep=getIN(deep-1,rootNode.right,outNode,is_bin)
 			else:
 				if(rootNode.unique!=None):
-					deep=getIN(deep-1,rootNode.unique,outNode,is_nd,is_bin)
+					deep=getIN(deep-1,rootNode.unique,outNode,is_bin)
 	return deep
 
 def setIST(index,rootNode,inNode,is_nd,is_bin):
@@ -199,7 +199,7 @@ def setIST(index,rootNode,inNode,is_nd,is_bin):
 					deep=getIST(deep-1,rootNode.unique,inNode,is_nd,is_bin)
 	return deep
 
-def setIN(index,rootNode,inNode,is_nd,is_bin):
+def setIN(index,rootNode,inNode,is_bin):
 	deep = index
 	if(index==0):
 		rootNode=inNode
@@ -207,10 +207,10 @@ def setIN(index,rootNode,inNode,is_nd,is_bin):
 		if(index>=1):
 			if(is_bin(rootNode.data)):
 				if(rootNode.left!=None):
-					deep=setIN(deep-1,rootNode.left,inNode,is_nd,is_bin)
+					deep=setIN(deep-1,rootNode.left,inNode,is_bin)
 				if(rootNode.right!=None):
-					deep=setIN(deep-1,rootNode.right,inNode,is_nd,is_bin)
+					deep=setIN(deep-1,rootNode.right,inNode,is_bin)
 			else:
 				if(rootNode.unique!=None):
-					deep=setIN(deep-1,rootNode.unique,inNode,is_nd,is_bin)
+					deep=setIN(deep-1,rootNode.unique,inNode,is_bin)
 	return deep
